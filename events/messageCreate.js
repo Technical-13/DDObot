@@ -2,8 +2,6 @@ const client = require( '..' );
 const { EmbedBuilder, Collection, PermissionsBitField } = require( 'discord.js' );
 const ms = require( 'ms' );
 const cooldown = new Collection();
-const cacheinfo = require( '../functions/cacheinfo.js' );
-const gcCacheTypeIcons = require( '../eventTypes.json' );
 const userPerms = require( '../functions/getPerms.js' );
 
 client.on( 'messageCreate', async message => {
@@ -13,34 +11,6 @@ client.on( 'messageCreate', async message => {
   const { clientId, botOwner, isDevGuild, prefix, isBotOwner, isBotMod, isGlobalWhitelisted, isBlacklisted, isGuildBlacklisted } = await userPerms( author, guild );
   const bot = client.user;
   const objGuildMembers = guild.members.cache;
-
-  var hasCodes = {
-    GC: false,// Geocache
-    TB: false,// Trackable
-    WM: false,// Waymark
-    GL: false,// Geocache Log
-    TL: false,// Trackable Log
-    PR: false,// User Profile
-    BM: false,// Bookmark
-    GT: false//  GeoTour
-  };
-  const arrGcCodes = [];
-  const arrOtherCodes = [];
-  const arrContent = content.trim().split( ' ' );
-  const arrOtherTypeCodes = [ 'GC', 'TB', 'WM', 'GL', 'TL', 'PR', 'BM', 'GT' ];
-  for ( let word of arrContent ) {
-    let arrWord = word.trim().match( /^((GC|TB|WM|GL|TL|PR|BM|GT)[a-zA-Z0-9]{2,6})/ );
-    let code = ( arrWord ? arrWord[ 1 ].toUpperCase() : '' );
-    let wordPrefix = ( arrWord ? arrWord[ 2 ] : '' );
-    if ( wordPrefix === 'GC' ) {
-      arrGcCodes.push( code );
-      hasCodes.GC = true;
-    }
-    else if ( arrOtherTypeCodes.indexOf( wordPrefix ) != -1 ) {
-      arrOtherCodes.push( code );
-      hasCodes[ wordPrefix ] = true;
-    }
-  }
 
   const hasPrefix = ( content.startsWith( prefix ) || content.startsWith( '§' ) );
   const meMentionPrefix = '<@' + clientId + '>';
@@ -115,51 +85,5 @@ client.on( 'messageCreate', async message => {
         }
       }
     }
-  }
-
-  if ( Object.values( hasCodes ).some( b => b ) ) {
-    const intCodes = arrGcCodes.length + arrOtherCodes.length;
-    const strPlural = ( intCodes === 1 ? '' : 's' );
-    let arrCodeTypes = [];
-    Object.entries( hasCodes ).forEach( entry => { if ( entry[ 1 ] ) { arrCodeTypes.push( entry[ 0 ] ) } } );
-    const intCodeTypes = arrCodeTypes.length;
-    let strCodeTypes = '';
-    switch ( intCodeTypes ) {
-      case 0: break;
-      case 1:
-        strCodeTypes = arrCodeTypes.pop();
-        break;
-      case 2:
-        strCodeTypes = arrCodeTypes.join( ' and ' );
-        break;
-      default:
-        let lastType = arrCodeTypes.pop();
-        strCodeTypes = arrCodeTypes.join( ', ' ) + ', and ' + lastType;
-    }
-    let strCodes = strCodeTypes + ' code' + strPlural + ' detected, here ' + ( intCodes === 1 ? 'is the ' : 'are ' ) + 'link' + strPlural + ':';
-    const codesResponse = await channel.send( strCodes );
-    for ( let gcCode of arrGcCodes ) {
-      await codesResponse.edit( strCodes + '\n<:Signal:398980726000975914> ...attempting to gather information about [' + gcCode + '](<https://coord.info/' + gcCode + '>)...' );
-      let objCache = await cacheinfo( gcCode );
-      if ( objCache.failed ) {
-        strCodes += '\n<:RIP:1015415145180176535> **Failed to get information about __[' + gcCode + '](<https://coord.info/' + gcCode + '>)__: ' + objCache.error + '...**';
-        await codesResponse.edit( strCodes );
-      } else {
-        let cacheName = objCache.name;
-        let arrCName = cacheName.split( ' ' );
-        cacheName = cacheName.replace( /\p{Emoji_Presentation}/gu, '�' );
-        let cacheTypeIcon = ( Object.keys( gcCacheTypeIcons ).indexOf( objCache.type ) != -1 ? gcCacheTypeIcons[ objCache.type ] : '⁉' );
-        if ( cacheTypeIcon === '⁉' ) { botOwner.send( { content: '`' + objCache.type + '` is not a known type of cache.' } ) }
-        strCodes += '\n';
-        if ( objCache.pmo ) { strCodes += '<:PMO:1293693055127519315>'; }
-        if ( objCache.archived || objCache.locked ) { strCodes += '<:archived:467385636173905942>'; }
-        else if ( objCache.disabled ) { strCodes += '<:disabled:467385661415227393>'; }
-        let dtURL = '[[' + objCache.difficulty + '/' + objCache.terrain + ']](<https://www.geocaching.com/help/index.php?pg=kb.page&inc=1&id=82>)';
-        strCodes += cacheTypeIcon + ' [' + cacheName + '](<https://coord.info/' + objCache.code + '>) by ' + objCache.nameCO + ' ' + dtURL;
-        await codesResponse.edit( strCodes );
-      }
-    }
-    for ( let code of arrOtherCodes ) { strCodes += '\n\t' + code + ' :link: <https://coord.info/' + code + '>'; }
-    codesResponse.edit( strCodes );
   }
 } );
