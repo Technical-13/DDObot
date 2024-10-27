@@ -1,0 +1,10 @@
+{
+  "activities": [ { "type": "Custom", "name": "https://discord.me/DDOunlimited" } ],
+  "botName": "DDObot",
+  "botOwnerId": "440752068509040660",
+  "clientId": "445792511525650432",
+  "devGuildId": "192775085420052489",
+  "moderatorIds": [],
+  "staticCmds": [],
+	"prefix": "&"
+}
