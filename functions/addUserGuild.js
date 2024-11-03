@@ -21,7 +21,7 @@ module.exports = async ( id, guild ) => {
     currUser.Guilds.push( addGuild );
     currUser.Guildless = null;
     userConfig.updateOne( { _id: id }, currUser, { upsert: true } )
-    .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to add guild %s (id: %s) to user %s (id: %s) in my database in addUserGuild.js:\n%o' ), guild.name, guild.id, user.displayName, id, updateError ); } );
+    .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to add guild ${guild.name} (id: ${guild.id}) to user ${user.displayName} (id: ${id}) in my database in addUserGuild.js:\n${updateError}` ) ); } );
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'addUserGuild.js' ), errObject.stack ); }
 };

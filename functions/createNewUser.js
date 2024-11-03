@@ -14,7 +14,7 @@ module.exports = async ( user ) => {
       Version: verUserDB
     }
     return await userConfig.create( newBotUser )
-    .catch( initError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to add %s (id: %s) to my user database in createNewUser.js:\n%o' ), user.displayName, user.id, initError ); } );
+    .catch( initError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to add ${user.displayName} (id: ${user.id}) to my user database in createNewUser.js:\n${initError}` ) ); } );
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'createNewUser.js' ), errObject.stack ); }
 };
