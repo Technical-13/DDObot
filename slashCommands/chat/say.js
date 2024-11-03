@@ -1,6 +1,6 @@
 const { ApplicationCommandType, InteractionContextType } = require( 'discord.js' );
 const userPerms = require( '../../functions/getPerms.js' );
-const logChans = require( '../../functions/getLogChans.js' );
+const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const errHandler = require( '../../functions/errorHandler.js' );
 const parse = require( '../../functions/parser.js' );
 
@@ -40,7 +40,8 @@ module.exports = {
     const mentionsEveryone = /@(everyone|here)/g.test( mySaying );
     const strEveryoneHere = ( mentionsEveryone ? '`@' + ( /@everyone/g.test( mySaying ) ? 'everyone' : 'here' ) + '`' : null );
 
-    const { chanChat, doLogs, strClosing } = await logChans( guild );
+    const logChans = await getGuildConfig( guild );
+    const { Active: doLogs, Chat: chanChat, strClosing } = logChans;
 
     if ( mySaying ) {
       const parsedSaying = await parse( mySaying, { member: guildMember } );

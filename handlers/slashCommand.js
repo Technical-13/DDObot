@@ -90,13 +90,13 @@ module.exports = ( client ) => {
           if ( cmdDevOnly ) { table.addRow( buildTable[ cmdKey ] ); }
         } );
         statusPut += chalk.green( 'Registered' );
-      } ).catch( error => {
+      } ).catch( errPutREST => {
         Object.keys( buildTable ).forEach( cmdKey => {
           buildTable[ cmdKey ].push( '❌' );
           table.addRow( buildTable[ cmdKey ] );
         } );
         statusPut += chalk.red( 'ERROR!' );
-        console.error( 'ERROR:\n%o', error );
+        console.error( 'ERROR:\n%o', errPutREST );
       } );
       }
       statusPut += '\n\tLive Commands: ';
@@ -110,13 +110,13 @@ module.exports = ( client ) => {
           if ( !cmdDevOnly ) { table.addRow( buildTable[ cmdKey ] ); }
         } );
         statusPut += chalk.green( 'Registered' ) + ' for ' + whoFor;
-      } ).catch( error => {
+      } ).catch( errPutREST => {
         Object.keys( buildTable ).forEach( cmdKey => {
           buildTable[ cmdKey ].push( '❌' );
           table.addRow( buildTable[ cmdKey ] );
         } );
         statusPut += chalk.red( 'ERROR!' );
-        console.error( 'ERROR:\n%o', error );
+        console.error( 'ERROR:\n%o', errPutREST );
       } );
     } else {
       statusPut += chalk.yellow( 'Unchanged!' ) + ' for ' + whoFor;

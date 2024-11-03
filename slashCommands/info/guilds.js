@@ -1,9 +1,8 @@
 const { ApplicationCommandType, EmbedBuilder } = require( 'discord.js' );
-const { model, Schema } = require( 'mongoose' );
 const guildConfigDB = require( '../../models/GuildConfig.js' );
 const errHandler = require( '../../functions/errorHandler.js' );
 const userPerms = require( '../../functions/getPerms.js' );
-const logChans = require( '../../functions/getLogChans.js' );
+//const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const pagination = require( '../../functions/pagination.js' );
 
 
@@ -19,9 +18,9 @@ module.exports = {
   run: async ( client, interaction ) => {
     await interaction.deferReply();
 
-    const guildConfigs = await guildConfigDB.find();
-    const guildConfigIds = [];
-    guildConfigs.forEach( ( entry, i ) => { guildConfigIds.push( entry.Guild ); } );
+    const storedGuilds = await guildConfigDB.find();
+    const storedGuildIds = [];
+    storedGuilds.forEach( ( entry, i ) => { storedGuildIds.push( entry.Guild ); } );
 
     const bot = client.user;
     const { channel, guild, options, user: author } = interaction;
@@ -29,16 +28,16 @@ module.exports = {
     if ( content ) { return interaction.editReply( { content: content } ); }
 
     const embedGuilds = [], myInvites = [];
-    const guildIds = Array.from( client.guilds.cache.keys() );
-    const currGuild = ( guildIds.indexOf( guild.id ) != -1 ? guildIds.indexOf( guild.id ) : null );
+    const botGuildIds = Array.from( client.guilds.cache.keys() );
+    const currGuild = ( botGuildIds.indexOf( guild.id ) != -1 ? botGuildIds.indexOf( guild.id ) : null );
     const strInputGuild = options.getString( 'guild' );
     if ( !( /\d{18,19}/.test( strInputGuild ) ) ) { /* NOT A GUILD ID */ }
-    const inputGuild = ( guildIds.indexOf( strInputGuild ) != -1 ? guildIds.indexOf( strInputGuild ) : null );
+    const inputGuild = ( botGuildIds.indexOf( strInputGuild ) != -1 ? botGuildIds.indexOf( strInputGuild ) : null );
     const startGuild = ( inputGuild || currGuild || 0 );
 
-    for ( const guildId of guildIds ) {
+    for ( const guildId of botGuildIds ) {
       const doGuild = client.guilds.cache.get( guildId );
-      interaction.editReply( { content: 'Getting information for guild ' + doGuild.name + '(' + guildIds.indexOf( doGuild.id ) + '/' + guildIds.length + ')' } );
+      interaction.editReply( { content: 'Getting information for guild ' + doGuild.name + '(' + botGuildIds.indexOf( doGuild.id ) + '/' + botGuildIds.length + ')' } );
       const objGuild = doGuild.toJSON();
       const guildName = objGuild.name;
       const vanityURLCode = objGuild.vanityURLCode;
@@ -48,9 +47,9 @@ if ( vanityURLCode ) { console.log( '%s has a vanityURLCode: %s', guildName, van
       const chanPublicUpdates = objGuild.publicUpdatesChannelId;
       const chanSafetyAlerts = objGuild.safetyAlertsChannelId;
       const chanSystem = objGuild.systemChannelId;
-      const chanFirst = doGuild.channels.cache.filter( chan => { if ( !chan.nsfw && chan.viewable ) { return chan; } } ).first().id;
-      const doneConfig = ( guildConfigIds.indexOf( guildId ) != -1 ? true : false );
-      const definedInvite = ( doneConfig ? guildConfigs[ guildConfigIds.indexOf( guildId ) ].Invite : null );
+      const chanFirst = Array.from( doGuild.channels.cache.filter( chan => !chan.nsfw && chan.permissionsFor( roleEveryone ).has( 'ViewChannel' ) ).keys() )[ 0 ];
+      const doneConfig = ( storedGuildIds.indexOf( guildId ) != -1 ? true : false );
+      const definedInvite = ( doneConfig ? storedGuilds[ storedGuildIds.indexOf( guildId ) ].Invite : null );
       const chanInvite = ( definedInvite || chanWidget || chanRules || chanPublicUpdates || chanSafetyAlerts || chanSystem || chanFirst );
       const chanLinkUrl = 'https://discordapp.com/channels/' + guildId + '/' + chanInvite;
       const ownerId = objGuild.ownerId;
@@ -93,7 +92,7 @@ if ( vanityURLCode ) { console.log( '%s has a vanityURLCode: %s', guildName, van
         .setColor( '#FF00FF' )
         .setTimestamp()
         .setThumbnail( iconURL )
-        .setFooter( { text: author.displayName + ' requested /guilds information (' + guildIds.length + ')' } );
+        .setFooter( { text: author.displayName + ' requested /guilds information (' + botGuildIds.length + ')' } );
 
       if ( description ) { thisGuild.addFields( { name: 'Description', value: description } ); }
 

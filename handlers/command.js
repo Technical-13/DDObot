@@ -7,7 +7,7 @@ module.exports = ( client ) => {
   const table = new AsciiTable().setBorder( '|', '=', "0", "0" )
   .setHeading( 'Group', prefix + 'Command', 'Loaded' )
   .setAlignRight( 0 ).setAlignLeft( 1 ).setAlignCenter( 2 );
-  
+
   const cmdGroups = {};
   fs.readdirSync( './commands/' ).forEach( dir => {
     const files = fs.readdirSync( `./commands/${dir}/` ).filter( file => file.endsWith( '.js' ) );

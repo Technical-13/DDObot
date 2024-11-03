@@ -1,6 +1,7 @@
 const client = require( '..' );
 const { EmbedBuilder, Collection, PermissionsBitField } = require( 'discord.js' );
 const cooldown = new Collection();
+const chalk = require( 'chalk' );
 const ms = require( 'ms' );
 
 client.on( 'interactionCreate', async interaction => {
@@ -54,5 +55,6 @@ client.on( 'interactionCreate', async interaction => {
       }
       await slashCommand.run( client, interaction );
     }
-  } catch ( error ) { console.log( error ); }
+  }
+  catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.bold.hex( '#FFA500' )( 'messageCreate.js' ), errObject.stack ); }
 } );
