@@ -56,7 +56,7 @@ module.exports = async ( guild ) => {
       };
       return await guildConfig.create( newGuildConfig )
       .then( initSuccess => { console.log( chalk.bold.greenBright( 'Succesfully added guild %s (id: %s) to my database.' ), guild.name, guild.id ); return newGuildConfig; } )
-      .catch( initError => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to add guild ${guild.name} (id: ${guild.id}) to my database:\n${initError}` ) ); } );
+      .catch( initError => { throw new Error( chalk.cyan.inverse.bold( `Error attempting to add guild ${guild.name} (id: ${guild.id}) to my database:\n${initError}` ) ); } );
     }
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'createNewGuild.js' ), errObject.stack ); }
