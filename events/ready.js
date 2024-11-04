@@ -233,8 +233,8 @@ client.on( 'ready', async rdy => {
     if ( botUserIds.length > 0 ) { console.log( 'Checking on %s user%s...', chalk.blueBright( botUserIds.length ), ( botUserIds.length === 1 ? '' : 's' ) ); }
     new Promise( async ( resolve, reject ) => {
       await botUserIds.forEach( async ( userId ) => {// Add new users and update all users in database.
+        let user = client.users.cache.get( userId );
         new Promise( async ( resolve, reject ) => {
-          let user = client.users.cache.get( userId );
           if ( await userConfig.countDocuments( { _id: userId } ) === 0 ) { await createNewUser( user ); }
           let botUserGuilds = ( Array.from( client.guilds.cache.filter( g => g.members.cache.has( userId ) ).keys() ).toSorted() || [] );
           let currUser = await userConfig.findOne( { _id: userId } );
