@@ -21,7 +21,7 @@ client.on( 'guildCreate', async ( guild ) => {
         gotGuild.Expires = null;
         await guildConfig.updateOne( { _id: guild.id }, gotGuild, { upsert: true } )
         .then( updateSuccess => { console.log( 'Cleared expriation of DB entry for %s (id: %s) upon re-joining guild.', chalk.bold.green( guild.name ), guild.id ); } )
-        .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to update %s (id: %s) to clear expiration in DB:\n%o' ), guild.name, guild.id, updateError ); } );
+        .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update %s (id: %s) to clear expiration in DB:\n%o' ), guild.name, guild.id, updateError ); } );
       }
       const roleEveryone = guild.roles.cache.find( role => role.name === '@everyone' );
       const chanWidget = ( guild.widgetEnabled ? guild.widgetChannelId : null );

@@ -26,7 +26,7 @@ client.on( 'guildUpdate', async ( oldGuild, newGuild ) => {
       currGuildConfig.Guild.Members = newGuild.members.cache.size;
       await guildConfig.updateOne( { _id: guildId }, currGuildConfig, { upsert: true } )
       .then( updateSuccess => { console.log( 'Succesfully updated %s (id: %s) in my database.', chalk.bold.yellow( newGuild.name ), guildId ); } )
-      .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to update %s (id: %s) to my database:\n%o' ), newGuild.name, guildId, updateError ); } );
+      .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update %s (id: %s) to my database:\n%o' ), newGuild.name, guildId, updateError ); } );
     }
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'guildUpdate.js' ), errObject.stack ); }

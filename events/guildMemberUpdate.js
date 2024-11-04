@@ -34,7 +34,7 @@ client.on( 'guildMemberUpdate', async ( oldMember, newMember ) => {
     }
     if ( doUserUpdate ) {
       userConfig.updateOne( { _id: user.id }, currUser, { upsert: true } )
-      .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to update guild %s (id: %s) for user %s (id: %s) in my database in getPerms.js:\n%o' ), guild.name, guild.id, user.displayName, user.id, updateError ); } );
+      .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update guild %s (id: %s) for user %s (id: %s) in my database in getPerms.js:\n%o' ), guild.name, guild.id, user.displayName, user.id, updateError ); } );
     }
 
     if ( isGuildOwner ) {
@@ -48,7 +48,7 @@ client.on( 'guildMemberUpdate', async ( oldMember, newMember ) => {
       if ( doGuildUpdate ) {
         currGuildConfig.Guild.Members = guild.members.cache.size;
         await guildConfig.updateOne( { _id: guild.id }, currGuildConfig, { upsert: true } )
-        .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to update %s (id: %s) in my database:\n%o' ), guild.name, guild.id, updateError ); } );
+        .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update %s (id: %s) in my database:\n%o' ), guild.name, guild.id, updateError ); } );
       }
     }
   }

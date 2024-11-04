@@ -24,7 +24,7 @@ client.on( 'guildMemberAdd', async ( member ) => {
     const currGuildConfig = await getGuildConfig( guild );
     currGuildConfig.Guild.Members = guild.members.cache.size;
     await guildConfig.updateOne( { _id: guild.id }, currGuildConfig, { upsert: true } )
-    .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( 'Error attempting to update %s (id: %s) to my database:\n%o' ), guild.name, guild.id, updateError ); } );
+    .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update %s (id: %s) to my database:\n%o' ), guild.name, guild.id, updateError ); } );
 
     const doLog = ( !currGuildConfig ? false : ( !currGuildConfig.Logs ? false : ( currGuildConfig.Logs.Active || false ) ) );
     const chanDefaultLog = ( !doLog ? null : member.guild.channels.cache.get( currGuildConfig.Logs.Default ) );

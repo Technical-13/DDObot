@@ -174,7 +174,7 @@ client.on( 'ready', async rdy => {
         updateGuildList.push( chalk.bold.cyan( guild.name) );
         await guildConfig.updateOne( { _id: guildId }, ( updateGuildVersion || currGuildConfig ), { upsert: true } )
         .then( updateSuccess => { console.log( 'Succesfully updated guild id: %s (%s) in my database.', guildId, chalk.bold.green( guild.name ) ); } )
-        .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to update ${guild.name} (id: ${guildId}) to my database:\n${updateError}` ) ); } );
+        .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to update ${guild.name} (id: ${guildId}) to my database:\n${updateError}` ) ); } );
       }
     } );
     if ( updateGuildList.length === 0 ) { console.log( chalk.bold.greenBright( 'My guilds match my database!' ) ); }
@@ -202,14 +202,14 @@ client.on( 'ready', async rdy => {
               botOwner.send( { content: 'Unable to find ' + ownerName + ' to notify them that I cleaned the guild, [' + delGuild.Guild.Name + '](<https://discord.com/channels/' + guildId + '>), from my database.' } );
             }
           } )
-          .catch( errDelete => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to delete ${delGuild.Guild.Name} (id: ${guildId}) from my database:\n${errDelete.stack}` ) ); } );
+          .catch( errDelete => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to delete ${delGuild.Guild.Name} (id: ${guildId}) from my database:\n${errDelete.stack}` ) ); } );
         }
         else if ( !delGuild.Expires ) {
           delGuild.Expires = dbExpires;
           console.log( 'I was removed from %s while I was offline, so I have set guild to expire: %o', chalk.hex( '#FFA500' ).bold( delGuild.Guild.Name ), delGuild.Expires );
           await guildConfig.updateOne( { _id: guildId }, delGuild, { upsert: true } )
           .then( updateSuccess => { console.log( 'Succesfully updated guild id: %s (%s) in my database.', guildId, chalk.bold.green( delGuild.Guild.Name ) ); } )
-          .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to update ${delGuild.Guild.Name} (id: ${guildId}) to my database:\n${updateError}` ) ); } );
+          .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to update ${delGuild.Guild.Name} (id: ${guildId}) to my database:\n${updateError}` ) ); } );
         }
         else { console.log( 'Guild %s expires: %o', chalk.hex( '#FFA500' ).bold( delGuild.Guild.Name ), delGuild.Expires ); }
       } );
@@ -300,7 +300,7 @@ client.on( 'ready', async rdy => {
             updateUserList.push( chalk.bold.cyan( !user ? updatedUser.UserName : user.displayName ) );
             await userConfig.updateOne( { _id: userId }, updatedUser, { upsert: true } )
             .then( updateSuccess => { console.log( 'Succesfully updated user id: %s (%s) in my database.', userId, chalk.bold.green( updatedUser.UserName ) ); } )
-            .catch( updateError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to update user ${updatedUser.UserName} (id: ${userId}) in my database:\n${updateError}` ) ); } );
+            .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to update user ${updatedUser.UserName} (id: ${userId}) in my database:\n${updateError}` ) ); } );
           }
         } );
       } );

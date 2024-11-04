@@ -7,7 +7,8 @@ const verGuildDB = config.verGuildDB;
 module.exports = async ( guild ) => {
   if ( !guild ) { throw new Error( chalk.bold.red( `No guild in createNewGuild.js: ${guild}` ) ); }
   try {
-    if ( await guildConfig.countDocuments( { _id: guild.id } ) === 0 ) {
+    if ( await guildConfig.countDocuments( { _id: guild.id } ) != 0 ) { console.error( 'Guild "%s" already exists in my database.', guild.name ); }
+    else {
       const botConfig = await getBotConfig();
       const globalPrefix = ( botConfig.Prefix || config.prefix || '!' );
       const guildOwner = guild.members.cache.get( guild.ownerId );
@@ -55,9 +56,8 @@ module.exports = async ( guild ) => {
       };
       return await guildConfig.create( newGuildConfig )
       .then( initSuccess => { console.log( chalk.bold.greenBright( 'Succesfully added guild %s (id: %s) to my database.' ), guild.name, guild.id ); return newGuildConfig; } )
-      .catch( initError => { throw new Error( chalk.bold.red.bgYellowBright( `Error attempting to add guild ${guild.name} (id: ${guild.id}) to my database:\n${initError}` ) ); } );
+      .catch( initError => { throw new Error( chalk.bold.black.bgCyan( `Error attempting to add guild ${guild.name} (id: ${guild.id}) to my database:\n${initError}` ) ); } );
     }
-    else { console.error( 'Guild %s (%s) already exists in my database.', user.id, user.displayName ); }
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'createNewGuild.js' ), errObject.stack ); }
 };
