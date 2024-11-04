@@ -11,7 +11,7 @@ module.exports = async ( id, guild ) => {
     const user = client.users.cache.get( id );
     if ( !user ) { throw new Error( chalk.bold.red( `id in addUserGuild.js (${id}) is not a known user.id: ${user}` ) ); }
     const member = guild.members.cache.get( id );
-    if ( !member ) { throw new Error( chalk.bold.red( `Member (${id} was not found in guild at addUserGuild.js): ${Array.from( guild.members.cache.keys() )}` ) ); }
+    if ( !member ) { throw new Error( chalk.bold.red( `Member ${id} was not found in guild at addUserGuild.js: ` ) + Array.from( guild.members.cache.keys() ) ); }
     if ( await userConfig.countDocuments( { _id: id } ) === 0 ) { await createNewUser( user ); }
     const currUser = await userConfig.findOne( { _id: id } );
     const addGuild = {
