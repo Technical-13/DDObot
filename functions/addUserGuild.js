@@ -5,7 +5,7 @@ const createNewUser = require( './createNewUser.js' );
 
 module.exports = async ( id, guild ) => {
   if ( !id ) { throw new Error( chalk.bold.red( `No id in addUserGuild.js: ${id}` ) ); }
-  if ( !( /[\d]{18,19}/.test( id ) ) ) { throw new Error( chalk.bold.red( `id in addUserGuild.js is not a snowflake: ${id}` ) ); }
+  if ( !( /[\d]{17,19}/.test( id ) ) ) { throw new Error( chalk.bold.red( `id in addUserGuild.js is not a snowflake: ${id}` ) ); }
   if ( !guild ) { throw new Error( chalk.bold.red( `No guild for userId(${id}) in addUserGuild.js: ${guild}` ) ); }
   try {
     const user = client.users.cache.get( id );
