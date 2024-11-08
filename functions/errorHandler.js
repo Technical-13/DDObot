@@ -35,7 +35,7 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
       const prerawReaction = ( !options ? 'NO `options`!' : getDebugString( options.rawReaction ) );
       const preEmoji = ( !options ? 'NO `options`!' : getDebugString( options.emoji ) );
       const preProcessed = { command: '{ typeof: ' + typeof( command ) + ', value: ' + command + ' }', type: '{ typeof: ' + typeof( type ) + ', value: ' + type + ' }', author: preAuthor, channel: preChan, chanType: prechanType, clearLists: preclearLists, guild: preGuild, inviteChanURL: preinviteChanURL, inviteGuild: preinviteGuild, modBlack: premodBlack, modMod: premodMod, modWhite: premodWhite, msgID: premsgID, rawReaction: prerawReaction, reaction: preEmoji };
-      console.warn( 'errorHandler recieved options:%o', preProcessed );
+      console.warn( 'functions/errorHandler.js recieved options:%o', preProcessed );
     }
 
     const cmd = ( typeof( command ) === 'string' ? command : 'undefined' );
@@ -62,7 +62,7 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
       const prcInviteGuild = getDebugString( inviteGuild );
       const prcEmoji = getDebugString( emoji );
       const processed = { cmd: cmd, myTask: myTask, author: prcAuthor, channel: prcChan, chanType: chanType, clearLists: clearLists, guild: prcGuild, inviteChanURL: inviteChanURL, inviteGuild: prcInviteGuild, modBlack: modBlack, modMod: modMod, modType: modType, modWhite: modWhite, msgID: msgID, rawReaction: rawReaction, reaction: prcEmoji };
-      console.warn( 'errorHandler processed options:%o', processed );
+      console.warn( 'functions/errorHandler.js processed options:%o', processed );
     }
 
     const botConfig = await getBotConfig();
@@ -253,12 +253,12 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
               const fromInTo = ( modType === 'remove' ? 'from the database ' + ( modMod ? 'bot moderator list' : ( modBlack ? 'black' : 'white' ) + 'list' ) : ( modMod ? 'to' : 'in' ) + ' the database' );
               const doList = ( modMod ? modType : ( modType === 'add' ? '' : 'de-' ) ) + ( modMod ? ' a moderator' : ( modBlack ? 'blacklist' : 'whitelist' ) );
               const modTarget = ( modMod || modBlack || modWhite );
-              console.error( chalk.cyan.inverse.bold( `Error attempting to ${doList} ${modTarget} (${botUsers.get( modTarget ).displayName}) ${fromInTo}:\n${errObject.stack}` ) );
+              console.error( chalk.bold.black.bgCyan( `Error attempting to ${doList} ${modTarget} (${botUsers.get( modTarget ).displayName}) ${fromInTo}:\n${errObject.stack}` ) );
               return { content: 'Error attempting to ' + doList + ' <@' + modTarget + '> ' + fromInTo + '.' + strConsole };
             }
             break;
           case 'reset':
-            console.error( chalk.cyan.inverse.bold( 'Error attempting to reset %s configuration with `/%s reset`:\n%s' ), ( cmd === 'config' ? 'guild' : 'bot' ), cmd, errObject.stack );
+            console.error( chalk.bold.black.bgCyan( 'Error attempting to reset %s configuration with `/%s reset`:\n%s' ), ( cmd === 'config' ? 'guild' : 'bot' ), cmd, errObject.stack );
             return { content: 'Error attempting to reset ' + ( cmd === 'config' ? 'guild' : 'bot' ) + ' configuration with `/' + cmd + ' reset`.' + strConsole };
             break;
           case 'set':
@@ -266,7 +266,7 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
             return { content: 'Error attempting to modify ' + ( cmd === 'config' ? 'guild' : 'bot' ) + ' configuration in my database.' + strConsole };
             break;
           default:
-            console.error( chalk.cyan.inverse.bold( 'Unknown error attempting to modify %s configuration in my database:\n%s' ), ( cmd === 'config' ? 'guild' : 'bot' ), errObject.stack );
+            console.error( chalk.bold.black.bgCyan( 'Unknown error attempting to modify %s configuration in my database:\n%s' ), ( cmd === 'config' ? 'guild' : 'bot' ), errObject.stack );
             return { content: 'Unknown error attempting to modify ' + ( cmd === 'config' ? 'guild' : 'bot' ) + ' configuration in my database.' + strConsole };
         }
         break;
@@ -289,5 +289,6 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
           return { content: 'Encounted an error with your `/' + cmd + '` request.' + strLogged };
         } );
     }
-  } catch ( errHandleErrors ) { console.error( 'Error in errorHandler.js: %s', errHandleErrors.stack ); }
+  }
+  catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', chalk.hex( '#FFA500' ).bold( 'functions/errorHandler.js' ), errObject.stack ); }
 };
