@@ -12,7 +12,10 @@ client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
     const isGuildOwner = ( author.id === objGuildOwner.id ? true : false );
     const msgAuthor = await guild.members.cache.get( author.id );
 
-    const arrJunkEmbedTitles = [];
+    const arrJunkEmbedTitles = [
+      'Geocaching: Join the world\'s largest treasure hunt.',
+      'Get the free Official Geocaching app and join the world\'s largest t...'
+    ];
     const arrJunkEmbedURLs = [ ( new RegExp( 'https?://(www\.)?ddowiki.com/(.*)', 'i' ) ) ];
     var strLastFoundJunk = '';
     const hasJunkEmbed = ( newMessage.embeds.find( embed => {
@@ -41,5 +44,5 @@ client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
       setTimeout( async () => { await msgCleaned.edit( baseMsg ).then( () => { msgCleaned.delete(); } ); }, 15000 );
     }
   }
-  catch ( errObject ) { console.error( 'Uncaught error in %s: %s', chalk.hex( '#FFA500' ).bold( 'messageUpdate.js' ), errObject.stack ); }
+  catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', chalk.hex( '#FFA500' ).bold( './events/messageUpdate.js' ), errObject.stack ); }
 } );

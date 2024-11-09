@@ -9,7 +9,9 @@ const addUserGuild = require( '../functions/addUserGuild.js' );
 const errHandler = require( '../functions/errorHandler.js' );
 const parse = require( '../functions/parser.js' );
 const duration = require( '../functions/duration.js' );
+const botVerbosity = 3;//( config.verbosity || 1 );
 const verUserDB = config.verUserDB;
+const strScript = chalk.hex( '#FFA500' ).bold( './events/guildMemberRemove.js' );
 
 client.on( 'guildMemberRemove', async ( member ) => {
   try {
@@ -28,13 +30,13 @@ client.on( 'guildMemberRemove', async ( member ) => {
       currUserGuild.Expires = dbExpires;
       console.log( 'Guild %s (%s) expires from %s (%s) in %s on: %o', guild.id, chalk.red( currUserGuild.GuildName ), currUser._id, chalk.red( currUser.UserName ), chalk.bold.redBright( await duration( dbExpires - ( new Date() ), { getWeeks: true } ) ), dbExpires );
       userConfig.updateOne( { _id: user.id }, currUser, { upsert: true } )
-      .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update guild %s (id: %s) for user %s (id: %s) to expire %o in my database in guildMemberRemove.js:\n%o' ), guild.name, guild.id, user.displayName, user.id, dbExpires, updateError ); } );
+      .catch( updateError => { throw new Error( chalk.bold.cyan.inverse( 'Error attempting to update guild %s (id: %s) for user %s (id: %s) to expire %o in my database in guildMemberRemove.js:\n%o' ), guild.name, guild.id, user.displayName, user.id, dbExpires, updateError ); } );
     }
 
-    const currGuildConfig = await getGuildConfig( guild );
+    const currGuildConfig = await getGuildConfig( guild, true );
     currGuildConfig.Guild.Members = guild.members.cache.size;
     await guildConfig.updateOne( { _id: guild.id }, currGuildConfig, { upsert: true } )
-    .catch( updateError => { throw new Error( chalk.bold.black.bgCyan( 'Error attempting to update %s (id: %s) in my database:\n%o' ), guild.name, guild.id, updateError ); } );
+    .catch( updateError => { throw new Error( chalk.bold.cyan.inverse( 'Error attempting to update %s (id: %s) in my database:\n%o' ), guild.name, guild.id, updateError ); } );
   }
-  catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', chalk.hex( '#FFA500' ).bold( 'guildMemberRemove.js' ), errObject.stack ); }
+  catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
 } );
