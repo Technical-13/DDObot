@@ -1,4 +1,5 @@
 const { ApplicationCommandType } = require( 'discord.js' );
+const chalk = require( 'chalk' );
 
 module.exports = {
   name: 'ping',
@@ -6,6 +7,9 @@ module.exports = {
   type: ApplicationCommandType.ChatInput,
   cooldown: 1000,
   run: async ( client, interaction ) => {
-    interaction.reply( { content: `🏓 Pong! Latency: **` + Math.round( client.ws.ping) .toString() + 'ms**', ephemeral: interaction.inGuild() } );
+    try {
+      interaction.reply( { content: `🏓 Pong! Latency: **` + Math.round( client.ws.ping) .toString() + 'ms**', ephemeral: interaction.inGuild() } );
+    }
+    catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', chalk.hex( '#FFA500' ).bold( './slashCommands/info/ping.js' ), errObject.stack ); }
   }
 };
