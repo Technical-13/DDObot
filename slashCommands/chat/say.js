@@ -40,13 +40,12 @@ module.exports = {
       const speakInChan = ( guild.members.cache.get( author.id ).permissionsIn( chanSpeak ).has( 'SendMessages' ) ? true : false );
       const canSpeak = ( ( isBotMod || checkPermission( 'ManageGuild' ) || checkPermission( 'ManageMessages' ) || isWhitelisted || ( guildAllowsPremium && isServerBooster ) ) && speakInChan ? true : false );
       const mySaying = options.getString( 'saying' );
-      const mentionsEveryone = /@(everyone|here)/g.test( mySaying );
-      const strEveryoneHere = ( mentionsEveryone ? '`@' + ( /@everyone/g.test( mySaying ) ? 'everyone' : 'here' ) + '`' : null );
+      const strEveryoneHere = ( mentions.everyone ? '`@' + ( /@everyone/g.test( mySaying ) ? 'everyone' : 'here' ) + '`' : null );
 
       const { doLogs, chanChat, strClosing } = await getGuildConfig( guild );
       if ( mySaying ) {
         const parsedSaying = await parse( mySaying, { member: guildMember } );
-        if ( canSpeak && ( !mentionsEveryone || checkPermission( 'MentionEveryone' ) ) ) {
+        if ( canSpeak && ( !mentions.everyone || checkPermission( 'MentionEveryone' ) ) ) {
           chanSpeak.send( { content: parsedSaying } ).then( async spoke => {
             if ( doLogs ) {
               chanChat.send( { content: 'I spoke in https://discord.com/channels/' + spoke.guild.id + '/' + spoke.channel.id + '/' + spoke.id + ' at <@' + author.id + '>\'s request:\n```' + mySaying + '\n```' + strClosing } )
@@ -56,7 +55,7 @@ module.exports = {
           } )
           .catch( async errSend => { return interaction.editReply( await errHandler( errSend, { command: 'say', guild: guild, type: 'errSend' } ) ); } );
         }
-        else if ( mentionsEveryone && !checkPermission( 'MentionEveryone' ) ) {
+        else if ( mentions.everyone && !checkPermission( 'MentionEveryone' ) ) {
           if ( doLogs ) {
             chanChat.send( { content: '<@' + author.id + '> has no permission to get me to ' + strEveryoneHere + ' in <#' + channel.id + '>. They tried to get me to say:\n```\n' + mySaying + '\n```' + strClosing } )
             .catch( async noLogChan => { return interaction.editReply( await errHandler( noLogChan, { chanType: 'chat', command: 'say', channel: channel, type: 'logLogs' } ) ); } );

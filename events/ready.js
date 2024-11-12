@@ -15,8 +15,8 @@ const botVerbosity = ( config.verbosity || 1 );
 const verGuildDB = config.verGuildDB;
 const verUserDB = config.verUserDB;
 Array.prototype.getDiff = function( arrOld ) { return this.filter( o => !arrOld.includes( o ) ) };
-Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) }
-Object.prototype.valMatch = function( that ) { return this == that }
+Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
+Object.prototype.valMatch = function( that ) { return this == that };
 
 client.on( 'ready', async rdy => {
   try {
