@@ -38,7 +38,7 @@ client.on( 'messageCreate', async message => {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
         const cleanLink = ( extraText ? rawLink.slice( 0 - extraText.length ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
-        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
+        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
