@@ -32,7 +32,7 @@ client.on( 'messageCreate', async message => {
     const codeBlocks = new RegExp( /([`]{3}(?:\n?.*?\n?)[`]{3})/g );
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
     const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
-    const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\]/g );
+    const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\][^\s]/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {/* TRON */console.log( 'rawLink: %o', rawLink );/* TROFF */
