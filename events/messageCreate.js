@@ -14,6 +14,15 @@ client.on( 'messageCreate', async message => {
     const { clientId, botOwner, isDevGuild, prefix, isBotOwner, isBotMod, isGlobalWhitelisted, isBlacklisted, isGuildBlacklisted } = await userPerms( author, guild );
     const bot = client.user;
     const objGuildMembers = guild.members.cache;
+    const codeBlocks = new RegExp( /([`]{3}(?:\n?.*\n?)[`]{3})/g );
+    const codeInline = new RegExp( /([`]{1}(?:.*)[`]{1})/g );
+    const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
+    const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\]/g );
+    const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
+    if ( arrWikiLinks.length >= 1 ) { console.log( 'I found wiki links: %o', arrWikiLinks); }
+    const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
+    const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
+    if ( arrTemplateLinks.length >= 1 ) { console.log( 'I found wiki template links: %o', arrTemplateLinks); }
 
     const hasPrefix = ( content.startsWith( prefix ) || content.startsWith( '§' ) );
     const meMentionPrefix = '<@' + clientId + '>';
