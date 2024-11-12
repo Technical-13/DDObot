@@ -5,15 +5,29 @@ const chalk = require( 'chalk' );
 const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
+Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
+const getDebugString = ( thing ) => {
+  if ( Array.isArray( thing ) ) { return '{ object-Array: { length: ' + thing.length + ' } }'; }
+  else if ( Object.prototype.toString.call( thing ) === '[object Date]' ) { return '{ object-Date: { ISOstring: ' + thing.toISOString() + ', value: ' + thing.valueOf() + ' } }'; }
+  else if ( typeof( thing ) != 'object' ) { return thing; }
+  else {
+    let objType = ( thing ? 'object-' + thing.constructor.name : typeof( thing ) );
+    let objId = ( thing ? thing.id : 'no.id' );
+    let objName = ( thing ? ( thing.displayName || thing.globalName || thing.name ) : 'no.name' );
+    return '{ ' + objType + ': { id: ' + objId + ', name: ' + objName + ' } }';
+  }
+};
 
 client.on( 'messageCreate', async message => {
   try {
     const { author, channel, content, guild, mentions } = message;
     if ( author.bot ) return;
     if ( channel.type !== 0 ) return;
-    const { clientId, botOwner, isDevGuild, prefix, isBotOwner, isBotMod, isGlobalWhitelisted, isBlacklisted, isGuildBlacklisted } = await userPerms( author, guild );
+    const { clientId, botOwner, isDevGuild, prefix, isBotOwner, isBotMod, checkPermission, isGlobalWhitelisted, isBlacklisted, isGuildBlacklisted } = await userPerms( author, guild );
     const bot = client.user;
     const objGuildMembers = guild.members.cache;
+    const sayEveryone = ( ( checkPermission( 'MentionEveryone' ) && mentions.everyone ) ? true : false );
+    const strEveryoneHere = ( sayEveryone ? '`@' + ( /@everyone/g.test( content ) ? 'everyone' : 'here' ) + '`' : null );
     const foundLinks = [];
     const codeBlocks = new RegExp( /([`]{3}(?:\n?.*?\n?)[`]{3})/g );
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
@@ -34,7 +48,20 @@ client.on( 'messageCreate', async message => {
         foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
       }
     }
-    if ( foundLinks.length >=1 ) { console.log( 'foundLinks:%o', foundLinks ); }
+    if ( foundLinks.length >=1 ) {
+      const mentionsMbrs = Array.from( mentions.members.keys() );
+      const mentionsMbrsStr = ( mentionsMbrs.length === 0 ? '' : '<@' + mentionsMbrs.join( '>, <@' ) + '>' );
+      const mentionsRoles = Array.from( mentions.roles.keys() );
+      const mentionsRolesStr = ( mentionsRoles.length === 0 ? '' : '<@&' + mentionsRoles.join( '>, <@&' ) + '>' );
+      const allMentions = ( mentionsMbrs.length + mentionsRoles.length === 0 ? null : mentionsMbrs + mentionsRoles );
+      const doMentions = ( sayEveryone ? strEveryoneHere : ( !allMentions ? null : allMentions ) );
+      if ( !doMentions ) {
+        message.reply( { content: '➡️ ' + foundLinks.join( '\n➡️ ' ) } ).catch( async errReply => { await errHandler( errReply, { author: author, command: 'messageCreate', type: 'errReply' } ); } );
+      }
+      else {
+        channel.send( { content: doMentions + '\n➡️ ' + foundLinks.join( '\n➡️ ' ) } ).catch( async errSend => { await errHandler( errSend, { command: 'messageCreate', channel: channel, type: 'errSend' } ); } );
+      }
+    }
 
     const hasPrefix = ( content.startsWith( prefix ) || content.startsWith( '§' ) );
     const meMentionPrefix = '<@' + clientId + '>';
