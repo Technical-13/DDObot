@@ -33,12 +33,12 @@ client.on( 'messageCreate', async message => {
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
     const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
     const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\][^\s]/g );
-    const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
+    const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );/* TRON */console.log( 'arrWikiLinks: %o', arrWikiLinks );/* TROFF */
     if ( arrWikiLinks.length >= 1 ) {
-      for ( let rawLink of arrWikiLinks ) {
-        const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
-        const cleanLink = ( extraText ? rawLink.slice( 0, rawLink.lastIndexOf( ']' ) ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
-        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
+      for ( let rawLink of arrWikiLinks ) {/* TRON */console.log( 'rawLink: %o', rawLink );/* TROFF */
+        const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );/* TRON */console.log( 'extraText: %o', extraText );/* TROFF */
+        const cleanLink = ( extraText ? rawLink.slice( 0, rawLink.lastIndexOf( ']' ) ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );/* TRON */console.log( 'cleanLink: %o', cleanLink );/* TROFF *//* TRON */console.log( 'pushed: %o', ( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' ) );/* TROFF */
+        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
