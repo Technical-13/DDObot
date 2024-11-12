@@ -37,7 +37,7 @@ client.on( 'messageCreate', async message => {
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {
         const cleanLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
-        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] ) + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
+        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
@@ -45,7 +45,7 @@ client.on( 'messageCreate', async message => {
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
       const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
-        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
+        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
     if ( foundLinks.length >=1 ) {
