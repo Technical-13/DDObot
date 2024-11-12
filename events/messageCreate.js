@@ -14,15 +14,27 @@ client.on( 'messageCreate', async message => {
     const { clientId, botOwner, isDevGuild, prefix, isBotOwner, isBotMod, isGlobalWhitelisted, isBlacklisted, isGuildBlacklisted } = await userPerms( author, guild );
     const bot = client.user;
     const objGuildMembers = guild.members.cache;
+    const foundLinks = [];
     const codeBlocks = new RegExp( /([`]{3}(?:\n?.*?\n?)[`]{3})/g );
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
     const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
     const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\]/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
-    if ( arrWikiLinks.length >= 1 ) { console.log( 'I found wiki links: %o', arrWikiLinks); }
+    if ( arrWikiLinks.length >= 1 ) {
+      for ( let rawLink of arrWikiLinks ) {
+        const cleanLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
+        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] ) + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
+      }
+    }
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
-    if ( arrTemplateLinks.length >= 1 ) { console.log( 'I found wiki template links: %o', arrTemplateLinks); }
+    if ( arrTemplateLinks.length >= 1 ) {
+      for ( let rawLink of arrWikiLinks ) {
+      const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
+        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
+      }
+    }
+    if ( foundLinks.length >=1 ) { console.log( 'foundLinks:%o', foundLinks ); }
 
     const hasPrefix = ( content.startsWith( prefix ) || content.startsWith( '§' ) );
     const meMentionPrefix = '<@' + clientId + '>';
