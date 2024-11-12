@@ -53,7 +53,7 @@ client.on( 'messageCreate', async message => {
       const mentionsMbrsStr = ( mentionsMbrs.length === 0 ? '' : '<@' + mentionsMbrs.join( '>, <@' ) + '>' );
       const mentionsRoles = Array.from( mentions.roles.keys() );
       const mentionsRolesStr = ( mentionsRoles.length === 0 ? '' : '<@&' + mentionsRoles.join( '>, <@&' ) + '>' );
-      const allMentions = ( mentionsMbrs.length + mentionsRoles.length === 0 ? null : mentionsMbrs + mentionsRoles );
+      const allMentions = ( mentionsMbrs.length + mentionsRoles.length === 0 ? null : mentionsMbrsStr + mentionsRolesStr );
       const doMentions = ( sayEveryone ? strEveryoneHere : ( !allMentions ? null : allMentions ) );
       if ( !doMentions ) {
         message.reply( { content: '➡️ ' + foundLinks.join( '\n➡️ ' ) } ).catch( async errReply => { await errHandler( errReply, { author: author, command: 'messageCreate', type: 'errReply' } ); } );
