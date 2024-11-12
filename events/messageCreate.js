@@ -35,7 +35,7 @@ client.on( 'messageCreate', async message => {
     const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\]/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
     if ( arrWikiLinks.length >= 1 ) {
-      for ( let rawLink of arrWikiLinks ) {
+      for ( let rawLink of arrWikiLinks ) {/* TRON */console.log( 'rawLink: %o', rawLink );/* TROFF */
         const cleanLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
