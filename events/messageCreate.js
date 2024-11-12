@@ -37,7 +37,7 @@ client.on( 'messageCreate', async message => {
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
-        const cleanLink = ( extraText ? rawLink.slice( extraText.length ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
+        const cleanLink = ( extraText ? rawLink.slice( 0, rawLink.lastIndexOf( ']' ) ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
