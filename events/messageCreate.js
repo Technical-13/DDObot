@@ -29,7 +29,7 @@ client.on( 'messageCreate', async message => {
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
-      for ( let rawLink of arrWikiLinks ) {
+      for ( let rawLink of arrTemplateLinks ) {
       const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
         foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + cleanLink[ 0 ] + '>)' );
       }
