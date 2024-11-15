@@ -4,6 +4,7 @@ const ms = require( 'ms' );
 const chalk = require( 'chalk' );
 const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
+const botVerbosity = client.verbosity;
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
 Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
 const getDebugString = ( thing ) => {
@@ -138,6 +139,8 @@ client.on( 'messageCreate', async message => {
         }
       }
     }
+  catch ( errObject ) {
+    console.error( 'Uncaught error in %s:\n\t%s\n\tI was processing a message from %s in https://discord.com/channels/%s/%s\n%s\n-----',
+    strScript, errObject.stack, getDebugString( author ), guild.id, channel.id, message.content );
   }
-  catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
 } );

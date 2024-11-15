@@ -14,6 +14,7 @@ let botSchema = new Schema( {
   Name: String,
   Owner: String,
   Prefix: String,
+  Verbosity: Number,
   Version: Number,
   Whitelist: [ String ]
 } );

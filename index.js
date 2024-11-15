@@ -1,9 +1,10 @@
-const keepAlive = require( './functions/server.js' );
-const initDatabase = require( './functions/database.js' );
 const fs = require( 'fs' );
 const { Client, GatewayIntentBits, Partials, Collection } = require( 'discord.js' );
-const config = require( './config.json' );
 require( 'dotenv' ).config();
+const ENV = process.env;
+const config = require( './config.json' );
+const keepAlive = require( './functions/server.js' );
+const initDatabase = require( './functions/database.js' );
 
 initDatabase();
 
@@ -34,7 +35,7 @@ if ( config.staticCmds ) { staticCmds.concat( config.staticCmds ); }
 staticCmds.push( 'admin' );
 client.groups.set( 'staticCmds', staticCmds );
 
-client.ownerId = ( config.botOwnerId || process.env.OWNER_ID );
+client.ownerId = ( config.botOwnerId || ENV.OWNER_ID );
 
 module.exports = client;
 
@@ -42,7 +43,7 @@ fs.readdirSync( './handlers' ).forEach( ( handler ) => {
   require( `./handlers/${handler}` )( client );
 } );
 
-client.login( process.env.token )
+client.login( ENV.token )
 .then( async loggedIn => { console.log( 'Successfully connected!' ); } )
 .catch( errLogin => { console.error( 'There was an error logging in:\n%s', errLogin.stack ); } );
 

@@ -5,7 +5,13 @@ let userSchema = new Schema( {
   Bot: Boolean,
   Guilds: [ {
     _id: String,
-    Bans: [ String ],
+    Corrections: [ {
+      ByID: String,
+      ByName: String,
+      Duration: String,
+      StartedAt: Date,
+      Type: String
+    } ],
     Expires: Date,
     GuildName: String,
     MemberName: String,

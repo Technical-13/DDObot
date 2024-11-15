@@ -43,6 +43,7 @@ module.exports = {
         interaction.editReply( { content: 'Getting information for guild ' + doGuild.name + '(' + botGuildIds.indexOf( doGuild.id ) + '/' + botGuildIds.length + ')' } );
         const objGuild = doGuild.toJSON();
         const guildName = objGuild.name;
+        const roleEveryone = guild.roles.cache.find( role => role.name === '@everyone' );
         const vanityURLCode = objGuild.vanityURLCode;
 if ( vanityURLCode ) { console.log( '%s has a vanityURLCode: %s', guildName, vanityURLCode ); }//don't know what this looks like in the API...
         const chanWidget = ( objGuild.widgetEnabled ? objGuild.widgetChannelId : null );

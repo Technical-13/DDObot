@@ -13,8 +13,7 @@
   "moderatorIds": [],
   "staticCmds": [],
 	"prefix": "&",
-  "verbosity": 4,
-  "verBotDB": 241030,
-  "verGuildDB": 241101,
+  "verBotDB": 241114,
+  "verGuildDB": 241114,
   "verUserDB": 241102
 }
