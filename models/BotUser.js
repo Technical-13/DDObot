@@ -21,7 +21,7 @@ let userSchema = new Schema( {
   Guildless: Date,
   Score: Number,
   UserName: String,
-  Version: Number
-} );
+  Version: Number//,WikiAuthentication: { String }
+}, { timestamps: true } );
 
 module.exports = model( 'BotUser', userSchema );

@@ -13,10 +13,10 @@ let botSchema = new Schema( {
   Mods: [ String ],
   Name: String,
   Owner: String,
-  Prefix: String,
-  Verbosity: Number,
+  Prefix: { type: String, default: "!" },
+  Verbosity: { type: Number, default: 5 },
   Version: Number,
   Whitelist: [ String ]
-} );
+}, { timestamps: true } );
 
 module.exports = model( 'BotConfig', botSchema );

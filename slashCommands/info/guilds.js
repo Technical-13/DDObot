@@ -10,6 +10,7 @@ const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/guilds.js' 
 
 module.exports = {
   name: 'guilds',
+  group: 'info',
   description: 'Get information about the guilds I\'m in.',
   type: ApplicationCommandType.ChatInput,
   options: [
