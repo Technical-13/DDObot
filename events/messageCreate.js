@@ -27,7 +27,7 @@ client.on( 'messageCreate', async ( message ) => {
     if ( !applicationId && webhookId === authorId ) return;//It's a webhook
     const allowedBots = [];
     const isAllowedBot = ( allowedBots.indexOf( author.id ) != -1 ? true : false );
-    if ( author.bot && !allowedBots ) return;//It's a bot that is not allowed
+    if ( author.bot && !isAllowedBot ) return;//It's a bot that is not allowed
     const { botOwner, checkPermission, clientId, errors, isBlacklisted, isBotMod, isBotOwner, isDevGuild, isGlobalWhitelisted, isGuildBlacklisted, prefix } = await userPerms( author, guild );
     if ( errors.hasNoMember ) {
       throw new Error( errors.noMember.console + '\n\tisBot: ' + ( author.bot ? 'true' : 'false' ) + '\n\tapplicationId: ' + applicationId + '\n\twebhookId: ' + webhookId );
