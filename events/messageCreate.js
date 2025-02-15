@@ -55,7 +55,7 @@ client.on( 'messageCreate', async ( message ) => {
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
       const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
-        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
+        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/Template:' + encodeURI( cleanLink[ 0 ] ) + '>)' );
       }
     }
     if ( foundLinks.length >=1 ) {
