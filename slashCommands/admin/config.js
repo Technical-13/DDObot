@@ -137,9 +137,9 @@ module.exports = {
       if ( isAnyoneTask ) {// get
         let showCommands = '**' + ( oldConfig.Commands.length === 0 ? 'All commands!' : '[ ' + oldConfig.Commands.join( ', ' ) + ' ]' ) + '**';
         let showInvite = ( oldConfig.Invite ? '<#' + oldConfig.Invite + '>' : '**My best guess** ¯\_(ツ)_/¯' );
-        let showChat = ( oldLogChat ? '<#' + oldLogChat + '>' : 'DM to <@' + guild.ownerId + '>' );
-        let showDefault = ( oldLogDefault ? '<#' + oldLogDefault + '>' : 'DM to <@' + guild.ownerId + '>' );
-        let showError = ( oldLogError ? '<#' + oldLogError + '>' : 'DM to <@' + guild.ownerId + '>' );
+        let showChat = ( oldLogActive ? '**Disabled**' : ( oldLogChat ? '<#' + oldLogChat + '>' : 'DM to <@' + guild.ownerId + '>' ) );
+        let showDefault = ( oldLogActive ? '**Disabled**' : ( oldLogDefault ? '<#' + oldLogDefault + '>' : 'DM to <@' + guild.ownerId + '>' ) );
+        let showError = ( oldLogActive ? '**Disabled**' : ( oldLogError ? '<#' + oldLogError + '>' : 'DM to <@' + guild.ownerId + '>' ) );
         let showPrefix = '**`' + ( oldConfig.Prefix || globalPrefix ) + '`**';
         let showPremium = '**`' + ( oldConfig.Premium && roleServerBooster ? 'EN' : 'DIS' ) + 'ABLED`**';
         let showWelcomeRole = ( oldConfig.Welcome.Role ? 'assigned <@' + oldConfig.Welcome.Role + '> and ' : '' );
