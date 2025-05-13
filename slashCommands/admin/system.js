@@ -56,10 +56,10 @@ module.exports = {
       await interaction.deferReply( { ephemeral: true } );
       const { channel, guild, options, user: author } = interaction;
       const botConfig = await botConfigDB.findOne( { _id: client.id } ).catch( async errFindBot => { await errHandler( errFindBot, { command: 'system', type: 'getBotDB' } ); } );
-      const { guilds, user: bot, users } = client;
+      const { guilds, user: bot, users } = client;console.log( 'botConfig:\n%o', botConfig );
       const botUsers = users.cache;
       const botGuilds = guilds.cache;
-      const botOwner = botUsers.get( botConfig.Owner );
+      const botOwner = botUsers.get( botConfig.Owner || botOwnerID );
       const isBotOwner = ( author.id === botOwner.id ? true : false );
       const arrBlackList = ( botConfig.Blacklist || [] );
       const botMods = ( botConfig.Mods || [] );
@@ -83,10 +83,10 @@ module.exports = {
             let strModList = '**' + ( botMods.length === 0 ? 'No bot moderators!' : '[ **<@' + botMods.join( '>**, **<@' ) + '>** ]' ) + '**';
             let strWhiteList =  '**' + ( arrWhiteList.length === 0 ? 'No one is whitelisted!' : '[ **<@' + arrWhiteList.join( '>**, **<@' ) + '>** ]' ) + '**';
             const showConfigs = 'My configuration:\n\t' +
-              'Name: `' + botConfig.BotName + '` (:id:`' + botConfig.ClientID + '`)\n\t' +
-              'Owner: <@' + botConfig.Owner + '>\n\t' +
+              /*'Name: `' + botConfig.BotName + '` (:id:`' + botConfig.ClientID + '`)\n\t' +
+              'Owner: <@' + botOwner.id + '>\n\t' +
               'Command Prefix: `' + botConfig.Prefix + '`\n\t' +
-              'Development Guild: `' + botGuilds.get( botConfig.DevGuild ).name + '`\n\t' +
+              'Development Guild: `' + botGuilds.get( botConfig.DevGuild ).name + '`\n\t' +//*/
               'Blacklist: ' + strBlackList + '\n\t' +
               'Whitelist: ' + strWhiteList + '\n\t' +
               'Moderators: ' + strModList;
@@ -386,7 +386,7 @@ module.exports = {
             }
             break;
         }
-      }
+      }//*/
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
   }
