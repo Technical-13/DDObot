@@ -26,13 +26,14 @@ module.exports = {
 		try {
       if ( isBotMod && !isBotOwner ) { return interaction.editReply( 'This is currently an **owner only** command.  Please talk to <@' + botOwner.id + '> if you need assistance.' ); }
       else if ( !isBotOwner ) { return interaction.editReply( 'This is an **owner only** command.' ); }
+      var newCommand = {};
       else if ( cmdType === 'prefix' ) {
         const command = client.commands.get( commandName );
         if ( !command ) { return interaction.editReply( 'I have no command named `' + commandName + '`!' ); }
 
         delete require.cache[ require.resolve( '../../commands/' + command.group + '/' + command.name + '.js' ) ];
 
-        const newCommand = require( '../../commands/' + command.group + '/' + command.name + '.js' );
+        newCommand = require( '../../commands/' + command.group + '/' + command.name + '.js' );
         client.commands.set( newCommand.name, newCommand );
       }
       else {
@@ -41,7 +42,7 @@ module.exports = {
 
         delete require.cache[ require.resolve( '../' + command.group + '/' + command.name + '.js' ) ];
 
-        const newCommand = require( '../' + command.group + '/' + command.name + '.js' );
+        newCommand = require( '../' + command.group + '/' + command.name + '.js' );
         client.slashCommands.set( newCommand.name, newCommand );
       }
       interaction.editReply( 'Command `' + newCommand.name + '` was reloaded!' );
