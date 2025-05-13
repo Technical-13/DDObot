@@ -65,7 +65,7 @@ module.exports = {
         IssueRepo: config.issueRepo,
         Logs: { Default: config.logChans.Default, Error: config.logChans.Error, JoinPart: config.logChans.JoinPart },
         Mods: config.moderatorIds,
-        Name: thisBotName,
+        Name: ( thisBotName || config.botName ),
         Owner: botOwnerID,
         Prefix: config.prefix,
         Verbosity: botVerbosity,
@@ -112,7 +112,7 @@ module.exports = {
             let strModList = '**' + ( botMods.length === 0 ? 'No bot moderators!' : '[ **<@' + botMods.join( '>**, **<@' ) + '>** ]' ) + '**';
             let strWhiteList =  '**' + ( arrWhiteList.length === 0 ? 'No one is whitelisted!' : '[ **<@' + arrWhiteList.join( '>**, **<@' ) + '>** ]' ) + '**';
             const showConfigs = 'My configuration:\n\t' +
-              'Name: `' + botConfig.BotName + '` (:id:`' + botConfig.ClientID + '`)\n\t' +
+              'Name: `' + botConfig.Name + '` (:id:`' + config.clientId + '`)\n\t' +
               'Owner: <@' + botOwner.id + '>\n\t' +
               'Command Prefix: `' + botConfig.Prefix + '`\n\t' +
               'Development Guild: `' + botGuilds.get( botConfig.DevGuild ).name + '`\n\t' +
@@ -415,7 +415,7 @@ module.exports = {
             }
             break;
         }
-      }//*/
+      }
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
   }
