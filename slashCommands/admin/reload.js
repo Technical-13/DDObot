@@ -21,7 +21,7 @@ module.exports = {
     await interaction.deferReply( { ephemeral: true } );
     const { guild, options, user: author } = interaction;
     const { botOwner, isBotOwner, isBotMod } = await userPerms( author, guild );
-    const cmdType = options.getString( 'type' ).toLowerCase() ?? 'slash';
+    const cmdType = ( !options.getString( 'type' ) ? 'slash' : options.getString( 'type' ).toLowerCase() );
     const commandName = options.getString( 'command', true ).toLowerCase();
 		try {
       if ( isBotMod && !isBotOwner ) { return interaction.editReply( 'This is currently an **owner only** command.  Please talk to <@' + botOwner.id + '> if you need assistance.' ); }
