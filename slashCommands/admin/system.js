@@ -1,4 +1,4 @@
-const client = require( '..' );
+const client = require( '../..' );
 require( 'dotenv' ).config();
 const ENV = process.env;
 const config = require( '../../config.json' );
