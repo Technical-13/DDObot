@@ -11,6 +11,12 @@ const getDebugString = ( thing ) => {
   if ( Array.isArray( thing ) ) { return '{ object-Array: { length: ' + thing.length + ' } }'; }
   else if ( Object.prototype.toString.call( thing ) === '[object Date]' ) { return '{ object-Date: { ISOstring: ' + thing.toISOString() + ', value: ' + thing.valueOf() + ' } }'; }
   else if ( typeof( thing ) != 'object' ) { return thing; }
+  else if ( thing.doError ) {
+    let objType = ( thing ? 'object-Errors' : typeof( thing ) );
+    let objNoMember = ( thing ? thing.hasNoMember : 'undefined' );
+    let objNoPerms = ( thing ? thing.hasNoPerms : 'undefined' );
+    return '{ ' + objType + ': { hasNoMember: ' + ( !objNoMember ? 'false' : thing.noMember ) + ', hasNoPerms: ' + ( !hasNoPerms ? 'false' : thing.noPerms ) + ' } }';
+  }
   else {
     let objType = ( thing ? 'object-' + thing.constructor.name : typeof( thing ) );
     let objId = ( thing ? thing.id : 'no.id' );
@@ -33,7 +39,7 @@ module.exports = async ( user, guild, doBlacklist = true, debug = false ) => {
     const users = client.users.cache;
     const members = guild.members.cache;
 
-    const results = { errors: { hasNoMember: false, hasNoPerms: false } };
+    const results = { errors: { doError: true, hasNoMember: false, hasNoPerms: false } };
     const member = members.get( user.id );
     const dbHasMember = ( await userConfig.countDocuments( { _id: user.id } ) != 0 ? true : false );
     if ( member && !dbHasMember ) { await createNewUser( user ); }
