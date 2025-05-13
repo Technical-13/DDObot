@@ -22,13 +22,13 @@ module.exports = {
 		try {
       const { guild, options, user: author } = interaction;
       const { botOwner, isBotOwner, isBotMod } = await userPerms( author, guild );
-      const cmdType = options.getString( 'type' ).toLowerCase() ?? 'slash';
-      const commandName = options.getString( 'command', true ).toLowerCase();
+      const cmdType = options.getString( 'type' ).toLowerCase() ?? 'slash';/* TRON */console.log( 'cmdType: %o', cmdType );/* TROFF */
+      const commandName = options.getString( 'command', true ).toLowerCase();/* TRON */console.log( 'commandName: %o', commandName );/* TROFF */
 
       if ( isBotMod && !isBotOwner ) { return interaction.editReply( 'This is currently an **owner only** command.  Please talk to <@' + botOwner.id + '> if you need assistance.' ); }
       else if ( !isBotOwner ) { return interaction.editReply( 'This is an **owner only** command.' ); }
       else if ( cmdType === 'prefix' ) {
-        const command = client.commands.get( commandName );
+        const command = client.commands.get( commandName );/* TRON */console.log( 'command: %o', command );/* TROFF */
         if ( !command ) { return interaction.editReply( 'I have no command named `' + commandName + '`!' ); }
 
         delete require.cache[ require.resolve( '../../commands/' + command.group + '/' + command.name + '.js' ) ];
@@ -37,7 +37,7 @@ module.exports = {
         client.commands.set( newCommand.name, newCommand );
       }
       else {
-        const command = client.slashCommands.get( commandName );
+        const command = client.slashCommands.get( commandName );/* TRON */console.log( 'command: %o', command );/* TROFF */
         if ( !command ) { return interaction.editReply( 'I have no slashCommand named `' + commandName + '`!' ); }
 
         delete require.cache[ require.resolve( '../' + command.group + '/' + command.name + '.js' ) ];
