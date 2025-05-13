@@ -15,7 +15,7 @@ const getDebugString = ( thing ) => {
     let objType = ( thing ? 'object-Errors' : typeof( thing ) );
     let objNoMember = ( thing ? thing.hasNoMember : 'undefined' );
     let objNoPerms = ( thing ? thing.hasNoPerms : 'undefined' );
-    return '{ ' + objType + ': { hasNoMember: ' + ( !objNoMember ? 'false' : thing.noMember ) + ', hasNoPerms: ' + ( !hasNoPerms ? 'false' : thing.noPerms ) + ' } }';
+    return '{ ' + objType + ': { hasNoMember: ' + ( !objNoMember ? 'false' : thing.noMember ) + ', hasNoPerms: ' + ( !objNoPerms ? 'false' : thing.noPerms ) + ' } }';
   }
   else {
     let objType = ( thing ? 'object-' + thing.constructor.name : typeof( thing ) );
