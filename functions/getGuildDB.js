@@ -13,6 +13,7 @@ const strScript = chalk.hex( '#FFA500' ).bold( './functions/getGuildDB.js' );
 module.exports = async ( guild, raw = false ) => {
   try {
     if ( !guild ) { throw new Error( 'No guild to get.' ); }
+    if ( typeof guild === 'string' && /^\d{17,19}$/.test( guild ) ) { guild = client.guilds.cache.get( guild ); }
     const guildOwner = await guild.members.cache.get( guild.ownerId );
     const guildChannels = guild.channels.cache;
     if ( !guildOwner ) {
