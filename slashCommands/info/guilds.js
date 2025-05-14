@@ -35,7 +35,7 @@ module.exports = {
       const botGuildIds = Array.from( client.guilds.cache.keys() );
       const currGuild = ( botGuildIds.indexOf( guild.id ) != -1 ? botGuildIds.indexOf( guild.id ) : null );
       const strInputGuild = options.getString( 'guild' );
-      if ( !( /\d{18,19}/.test( strInputGuild ) ) ) { /* NOT A GUILD ID */ }
+      if ( !( typeof guild === 'string' && /^\d{17,19}$/.test.test( strInputGuild ) ) ) { /* NOT A GUILD ID */ }
       const inputGuild = ( botGuildIds.indexOf( strInputGuild ) != -1 ? botGuildIds.indexOf( strInputGuild ) : null );
       const startGuild = ( inputGuild || currGuild || 0 );
 
