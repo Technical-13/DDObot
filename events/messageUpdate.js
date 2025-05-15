@@ -8,7 +8,7 @@ client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
   try {
     const { author, channel, content, guild, mentions } = newMessage;
     if ( author.bot ) return;
-    if ( channel.type !== 0 || channel.type !== 11 || channel.type !== 12 ) return;//Not a text type channel within a guild
+    if ( channel.type !== 0 && channel.type !== 10 && channel.type !== 11 && channel.type !== 12 ) return;//Not a text type channel within a guild
     const msgAuthor = await guild.members.cache.get( author.id );
 
     if ( newMessage.embeds.length >= 1 ) {
