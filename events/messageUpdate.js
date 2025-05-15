@@ -7,9 +7,7 @@ const botVerbosity = client.verbosity;
 client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
   try {
     const { author, channel, content, guild, mentions } = newMessage;
-    if ( author.bot ) return;
     if ( channel.type !== 0 && channel.type !== 10 && channel.type !== 11 && channel.type !== 12 ) return;//Not a text type channel within a guild
-    const msgAuthor = await guild.members.cache.get( author.id );
 
     if ( newMessage.embeds.length >= 1 ) {
       const arrJunkEmbedTitles = [// Must be ( new RegExp() )
@@ -35,13 +33,15 @@ client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
 
       if ( hasJunkEmbed ) {
         newMessage.suppressEmbeds( true );
-        const baseMsg = '<@' + author.id + '>, I cleaned the embeds from your message.\n' +
-          'To avoid this in the future, please wrap links like `<' + strLastFoundJunk + '>`\n';
-        const msgCleaned = await newMessage.reply( baseMsg + 'This message will self destruct in 15 seconds.' );
-        for ( let seconds = 14; seconds > 0; seconds-- ) {
-          setTimeout( () => { msgCleaned.edit( baseMsg + 'This message will self destruct in ' + seconds + ' seconds.' ); }, ( 15 - seconds ) * 1000 );
+        if ( !author.bot ) {
+          const baseMsg = '<@' + author.id + '>, I cleaned the embeds from your message.\n' +
+            'To avoid this in the future, please wrap links like `<' + strLastFoundJunk + '>`\n';
+          const msgCleaned = await newMessage.reply( baseMsg + 'This message will self destruct in 15 seconds.' );
+          for ( let seconds = 14; seconds > 0; seconds-- ) {
+            setTimeout( () => { msgCleaned.edit( baseMsg + 'This message will self destruct in ' + seconds + ' seconds.' ); }, ( 15 - seconds ) * 1000 );
+          }
+          setTimeout( async () => { await msgCleaned.edit( baseMsg ).then( () => { msgCleaned.delete(); } ); }, 15000 );
         }
-        setTimeout( async () => { await msgCleaned.edit( baseMsg ).then( () => { msgCleaned.delete(); } ); }, 15000 );
       }
     }
   }
