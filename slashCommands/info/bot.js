@@ -8,8 +8,9 @@ const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/bot.js' );
 module.exports = {
   name: 'bot',
   group: 'info',
-  description: 'Bot information and message management.',
-  type: ApplicationCommandType.ChatInput,
+  // description: 'Bot information and message management.',// No description for ApplicationCommandType.User commands
+  // type: ApplicationCommandType.ChatInput,
+  type: ApplicationCommandType.User,
   contexts: [ InteractionContextType.Guild, InteractionContextType.BotDM ],
   cooldown: 1000,
   devOnly: true,
