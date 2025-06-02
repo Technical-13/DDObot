@@ -3,7 +3,8 @@ const chalk = require( 'chalk' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/ping.js' );
 
 module.exports = {
-  name: 'Ping!',
+  //name: 'Ping!',//Can have upper case and punctuation in ApplicationCommandType.User commands
+  name: 'ping',
   group: 'info',
   description: 'Check bot\'s ping.',// No description for ApplicationCommandType.User commands
   type: ApplicationCommandType.ChatInput,
