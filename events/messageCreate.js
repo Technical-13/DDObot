@@ -5,6 +5,8 @@ const chalk = require( 'chalk' );
 const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
 const botVerbosity = client.verbosity;
+const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
+const objNamespaces = require( '../jsonObjects/wikiProjects.json' );
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
 Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
 const getDebugString = ( thing ) => {
@@ -47,30 +49,33 @@ client.on( 'messageCreate', async ( message ) => {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
         const cleanLink = ( extraText ? rawLink.slice( 0, rawLink.lastIndexOf( ']' ) ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
-        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + '](<https://ddowiki.com/page/' + encodeURI( cleanLink[ 0 ] ) + '>)' );
+        foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
     }
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
-      const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
-        foundLinks.push( '[Template:' + cleanLink[ 0 ] + '](<https://ddowiki.com/page/Template:' + encodeURI( cleanLink[ 0 ] ) + '>)' );
+        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
+        foundLinks.push( '[Template:' + cleanLink[ 0 ] + ']' );
       }
     }
-    if ( foundLinks.length >=1 ) {
+    if ( foundLinks.length >= 1 ) {
+      foundLinks.each( ( k, v ) => {
+        const allParts = v.match( /\[([\w]*:)?([\w]*:)?(.*?)(#(?:.*?))?(\|(?:.*?))?\]/ );
+        var lnkMarkdown = '[' + ( allParts[ 5 ]?.replace( '|', '' ) ?? ( allParts[ 1 ] ?? '' ) + ( allParts[ 2 ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) ) + '](https://' + ( objWikiProjects[ allParts[ 1 ]?.replace( ':', '' ) ] ?? objWikiProjects.ddo ) + '/' + ( objNamespaces[ allParts[ 2 ]?.replace( ':', '' ) ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) + ')';
+        foundLinks[ k ] = lnkMarkdown;
+      } );
+      foundLinks.getDistinct();
+
       const mentionsMbrs = Array.from( mentions.members.keys() );
       const mentionsMbrsStr = ( mentionsMbrs.length === 0 ? '' : '<@' + mentionsMbrs.join( '>, <@' ) + '>' );
       const mentionsRoles = Array.from( mentions.roles.keys() );
       const mentionsRolesStr = ( mentionsRoles.length === 0 ? '' : '<@&' + mentionsRoles.join( '>, <@&' ) + '>' );
       const allMentions = ( mentionsMbrs.length + mentionsRoles.length === 0 ? null : mentionsMbrsStr + mentionsRolesStr );
       const doMentions = ( sayEveryone ? strEveryoneHere : ( !allMentions ? null : allMentions ) );
-      if ( !doMentions ) {
-        message.reply( { content: '➡️ ' + foundLinks.join( '\n➡️ ' ) } ).catch( async errReply => { await errHandler( errReply, { author: author, command: 'messageCreate', type: 'errReply' } ); } );
-      }
-      else {
-        channel.send( { content: doMentions + '\n➡️ ' + foundLinks.join( '\n➡️ ' ) } ).catch( async errSend => { await errHandler( errSend, { command: 'messageCreate', channel: channel, type: 'errSend' } ); } );
-      }
+      channel.send( { content: ( doMentions ? doMentions + '\n' : '' ) + '➡️ ' + foundLinks.join( '\n➡️ ' ) } )
+        .catch( async errSend => { await errHandler( errSend, { command: 'messageCreate', channel: channel, type: 'errSend' } ); } );
     }
 
     const hasPrefix = ( content.startsWith( prefix ) || content.startsWith( '§' ) );
