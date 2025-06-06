@@ -61,7 +61,7 @@ client.on( 'messageCreate', async ( message ) => {
       }
     }
     if ( foundLinks.length >= 1 ) {
-      foundLinks.each( ( k, v ) => {
+      foundLinks.forEach( ( k, v ) => {
         const allParts = v.match( /\[([\w]*:)?([\w]*:)?(.*?)(#(?:.*?))?(\|(?:.*?))?\]/ );
         var lnkMarkdown = '[' + ( allParts[ 5 ]?.replace( '|', '' ) ?? ( allParts[ 1 ] ?? '' ) + ( allParts[ 2 ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) ) + '](https://' + ( objWikiProjects[ allParts[ 1 ]?.replace( ':', '' ) ] ?? objWikiProjects.ddo ) + '/' + ( objNamespaces[ allParts[ 2 ]?.replace( ':', '' ) ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) + ')';
         foundLinks[ k ] = lnkMarkdown;
