@@ -6,7 +6,7 @@ const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
 const botVerbosity = client.verbosity;
 const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
-const objNamespaces = require( '../jsonObjects/wikiProjects.json' );
+const objWikiProjects = require( '../jsonObjects/wikiProjects.json' );
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
 Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
 const getDebugString = ( thing ) => {
