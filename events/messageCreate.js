@@ -52,7 +52,7 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
     }
-    const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
+    const regTemplateLinks = new RegExp( /\{\{(?:(?:t|template):)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
