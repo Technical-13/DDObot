@@ -61,10 +61,16 @@ client.on( 'messageCreate', async ( message ) => {
       }
     }
     if ( foundLinks.length >= 1 ) {
-      foundLinks.forEach( ( k, v ) => {
-        const allParts = v.match( /\[([\w]*:)?([\w]*:)?(.*?)(#(?:.*?))?(\|(?:.*?))?\]/ );
-        var lnkMarkdown = '[' + ( allParts[ 5 ]?.replace( '|', '' ) ?? ( allParts[ 1 ] ?? '' ) + ( allParts[ 2 ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) ) + '](https://' + ( objWikiProjects[ allParts[ 1 ]?.replace( ':', '' ) ] ?? objWikiProjects.ddo ) + '/' + ( objNamespaces[ allParts[ 2 ]?.replace( ':', '' ) ] ?? '' ) + allParts[ 3 ] + ( allParts[ 4 ] ?? '' ) + ')';
-        foundLinks[ k ] = lnkMarkdown;
+      foundLinks = foundLinks.map( v => {
+        const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
+        const lnkText = '[' + ( allParts[ 5 ] ?? ( allParts[ 1 ] || allParts[ 1 ] === '' ? allParts[ 1 ] + ':' : '' ) + ( allParts[ 2 ] || allParts[ 2 ] === '' ? allParts[ 2 ] + ':' : ( !allParts[ 1 ] && !allParts[ 3 ] ? 'Special:' : '' ) ) + ( allParts[ 3 ] ?? 'MyLanguage' ) + ( allParts[ 4 ] ?? '' ) ) + ']';
+        const lnkSite = ( !allParts[ 2 ] && allParts[ 2 ] !== '' ? objWikiProjects.ddo : ( objWikiProjects[ allParts[ 1 ]?.toLowerCase() ] ?? objWikiProjects.ddo ) );
+        const lnkNSone = ( allParts[ 1 ] == '' ? '' : ( allParts[ 1 ] ? ( objNamespaces[ allParts[ 1 ].toUpperCase() ] ?? allParts[ 1 ].toUpperCase() ) + ':' : null ) );
+        const lnkNStwo = ( allParts[ 2 ] == '' ? '' : ( allParts[ 2 ] ? ( objNamespaces[ allParts[ 2 ].toUpperCase() ] ?? allParts[ 2 ].toUpperCase() ) + ':' : null ) );
+        const lnkNamespace = ( lnkNSone === null && lnkNStwo === null ? '' : ( lnkNSone !== null && lnkNStwo === '' ? '' : ( lnkNSone !== null && lnkNStwo === null ? lnkNSone : lnkNStwo ) ) );
+        const lnkPage = ( allParts[ 3 ] ?? 'MyLanguage' );
+        const lnkSection = ( allParts[ 4 ] ?? '' );
+        return lnkText + '(https://' + lnkSite + '/' + lnkNamespace + lnkPage + lnkSection + ')';
       } );
       foundLinks.getDistinct();
 
