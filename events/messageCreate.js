@@ -56,7 +56,7 @@ client.on( 'messageCreate', async ( message ) => {
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
-        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
+        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );console.log('cleanLink: %o',cleanLink);
         const cleanSite = ( cleanLink[ 0 ]?.toLowerCase() != 't:' && cleanLink[ 0 ]?.toLowerCase() != 'template:' ? cleanLink[ 0 ] : '' );
         foundLinks.push( '[' + cleanSite + 'Template:' + cleanLink[ 1 ] + ']' );
       }
