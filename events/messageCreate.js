@@ -52,12 +52,13 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
     }
-    const regTemplateLinks = new RegExp( /\{\{(?:(?:t|template):)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
+    const regTemplateLinks = new RegExp( /\{\{((?:t|template):)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
-    if ( arrTemplateLinks.length >= 1 ) {console.log('arrTemplateLinks: %o', arrTemplateLinks);
-      for ( let rawLink of arrTemplateLinks ) {console.log('rawLink: %o',rawLink);
-        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );console.log('cleanLink: %o',cleanLink);
-        foundLinks.push( '[Template:' + cleanLink[ 0 ] + ']' );
+    if ( arrTemplateLinks.length >= 1 ) {
+      for ( let rawLink of arrTemplateLinks ) {
+        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
+        const cleanSite = ( cleanLink[ 0 ]?.toLowerCase() != 't:' && cleanLink[ 0 ]?.toLowerCase() != 'template:' ? cleanLink[ 0 ] : '' );
+        foundLinks.push( '[' + cleanSite + 'Template:' + cleanLink[ 1 ] + ']' );
       }
     }
     if ( foundLinks.length >= 1 ) {
