@@ -54,9 +54,9 @@ client.on( 'messageCreate', async ( message ) => {
     }
     const regTemplateLinks = new RegExp( /\{\{(?:(?:t|template):)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
-    if ( arrTemplateLinks.length >= 1 ) {
-      for ( let rawLink of arrTemplateLinks ) {
-        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
+    if ( arrTemplateLinks.length >= 1 ) {console.log('arrTemplateLinks: %o', arrTemplateLinks);
+      for ( let rawLink of arrTemplateLinks ) {console.log('rawLink: %o',rawLink);
+        const cleanLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );console.log('cleanLink: %o',cleanLink);
         foundLinks.push( '[Template:' + cleanLink[ 0 ] + ']' );
       }
     }
