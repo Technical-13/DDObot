@@ -39,7 +39,7 @@ client.on( 'messageCreate', async ( message ) => {
 
     const sayEveryone = ( ( checkPermission( 'MentionEveryone' ) && mentions.everyone ) ? true : false );
     const strEveryoneHere = ( sayEveryone ? '`@' + ( /@everyone/g.test( content ) ? 'everyone' : 'here' ) + '`' : null );
-    const foundLinks = [];
+    var foundLinks = [];
     const codeBlocks = new RegExp( /([`]{3}(?:\n?.*?\n?)[`]{3})/g );
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
     const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
@@ -60,8 +60,8 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[Template:' + cleanLink[ 0 ] + ']' );
       }
     }
-    if ( foundLinks.length >= 1 ) {/* TRON */console.log( 'foundLinks (start) %o', foundLinks );/* TROFF */
-      foundLinks = foundLinks.map( v => {/* TRON */console.log( 'v (processing...): %o', v );/* TROFF */
+    if ( foundLinks.length >= 1 ) {
+      foundLinks = foundLinks.map( v => {
         const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
         const lnkText = '[' + ( allParts[ 5 ] ?? ( allParts[ 1 ] || allParts[ 1 ] === '' ? allParts[ 1 ] + ':' : '' ) + ( allParts[ 2 ] || allParts[ 2 ] === '' ? allParts[ 2 ] + ':' : ( !allParts[ 1 ] && !allParts[ 3 ] ? 'Special:' : '' ) ) + ( allParts[ 3 ] ?? 'MyLanguage' ) + ( allParts[ 4 ] ?? '' ) ) + ']';
         const oneIsSite = ( objNamespaces[ allParts[ 1 ]?.toUpperCase() ] ? false : ( objWikiProjects[ allParts[ 1 ]?.toLowerCase() ] ? true : false ) );
@@ -72,8 +72,8 @@ client.on( 'messageCreate', async ( message ) => {
         const lnkPage = ( allParts[ 3 ] ?? 'MyLanguage' );
         const lnkSection = ( allParts[ 4 ] ?? '' );
         return lnkText + '(https://' + lnkSite + '/' + lnkNamespace + lnkPage + lnkSection + ')';
-      } );/* TRON */console.log( 'foundLinks (end): %o', foundLinks );/* TROFF */
-      foundLinks.getDistinct();/* TRON */console.log( 'foundLinks (getDistinct): %o', foundLinks );/* TROFF */
+      } );
+      foundLinks.getDistinct();
 
       const mentionsMbrs = Array.from( mentions.members.keys() );
       const mentionsMbrsStr = ( mentionsMbrs.length === 0 ? '' : '<@' + mentionsMbrs.join( '>, <@' ) + '>' );
