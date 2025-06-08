@@ -4,6 +4,7 @@ const ms = require( 'ms' );
 const chalk = require( 'chalk' );
 const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
+const errHandler = require( '../functions/errorHandler.js' );
 const botVerbosity = client.verbosity;
 const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
 const objWikiProjects = require( '../jsonObjects/wikiProjects.json' );
@@ -57,9 +58,9 @@ client.on( 'messageCreate', async ( message ) => {
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {console.log('rawLink: %o',rawLink);
         const arrRawLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' )[ 0 ].split( ':' );console.log('arrRawLink: %o',arrRawLink);
-        const cleanLink = arrRawLink.pop();console.log('cleanLink: %o',cleanLink);
-        const cleanSite = ( !arrRawLink[ 0 ] || arrRawLink[ 0 ]?.toLowerCase() === 't:' || arrRawLink[ 0 ]?.toLowerCase() === 'template:' ? '' : arrRawLink[ 0 ] );console.log('cleanSite: %o',cleanSite);
-        foundLinks.push( '[' + cleanSite + 'Template:' + cleanLink + ']' );
+        const cleanPage = arrRawLink.pop();console.log('cleanPage: %o',cleanPage);
+        const cleanSite = ( !arrRawLink[ 0 ] || arrRawLink[ 0 ]?.toLowerCase() === 't' || arrRawLink[ 0 ]?.toLowerCase() === 'template' ? '' : arrRawLink[ 0 ] + ':' );console.log('cleanSite: %o',cleanSite);
+        foundLinks.push( '[' + cleanSite + 'Template:' + cleanPage + ']' );
       }
     }
     if ( foundLinks.length >= 1 ) {
