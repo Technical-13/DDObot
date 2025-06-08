@@ -52,11 +52,11 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
     }
-    const regTemplateLinks = new RegExp( /\{\{(?:(?:t|template):)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
+    const regTemplateLinks = new RegExp( /\{\{(?:(.*?)\:)?([^\|\}]*)(?:\|[^\}]*)?\}\}/gi );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
-        const arrRawLink = rawLink.replace( /[\{\}]/g, '' ).match( /((?:.*?)\:)?(.*?)(?:\|(.*?))?/ );console.log('arrRawLink: %o',arrRawLink);
+        const arrRawLink = rawLink.match( /\{\{((?:.*?)\:)*(.*?)(?:\|(.*?))*/ );console.log('arrRawLink: %o',arrRawLink);
         const cleanLink = arrRawLink[ 1 ];console.log('cleanLink: %o',cleanLink);
         const cleanSite = ( !arrRawLink[ 0 ] || arrRawLink[ 0 ]?.toLowerCase() === 't:' || arrRawLink[ 0 ]?.toLowerCase() === 'template:' ? '' : arrRawLink[ 0 ] );console.log('cleanSite: %o',cleanSite);
         foundLinks.push( '[' + cleanSite + 'Template:' + cleanLink + ']' );
