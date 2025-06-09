@@ -75,6 +75,7 @@ module.exports = async ( user, guild, doBlacklist = true, debug = false ) => {
     results.guildOwner = members.get( guild.ownerId );
     results.isGuildOwner = ( user.id === results.guildOwner.id ? true : false );
     results.guildAllowsPremium = guildConfig.Premium;
+    results.roleEveryone = ( guild.roles.everyone || null );
     results.roleServerBooster = ( guild.roles.premiumSubscriberRole || null );
     results.isServerBooster = ( !results.roleServerBooster ? false : ( results.roleServerBooster.members.get( user.id ) ? true : false ) );
     const arrAuthorPermissions = ( member?.permissions.toArray() || [] );
@@ -86,6 +87,18 @@ module.exports = async ( user, guild, doBlacklist = true, debug = false ) => {
         status: true
       };
     }
+    results.rolesInfo = ( member ? member.roles.cache : results.roleEveryone ).map( role => {
+      return {
+        id: role.id,
+        name: role.name,
+        managed: role.managed,
+        mentionable: role.mentionable,
+        position: role.position,
+        color: role.hexColor,
+        members: role.members.size
+      };
+    } );
+    results.hasRole = ( role ) => { return results.rolesInfo.filter( r => r.id == role || r.name == role ) ? true : false ); };
 
     results.hasAdministrator = ( ( results.isBotMod || results.isGuildOwner || arrAuthorPermissions.indexOf( 'Administrator' ) !== -1 ) ? true : false );
     results.checkPermission = ( permission ) => { return ( ( results.hasAdministrator || arrAuthorPermissions.indexOf( permission ) !== -1 ) ? true : false ); };
