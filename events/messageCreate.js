@@ -34,32 +34,52 @@ const getSiteMatrix = async function () {
 			smsiteprop: 'url|code',
 			smtype: 'language|special'
 		},
-    smArray: [ smCustom ],
+    smArray: [ { langs: [], sites: [] } ],
     rawcontinue: true
 	};
   var smResults = function ( smParams ) {
     var fetchSiteMatrixURL = wmfWikiEndpoint;
-    if ( !smParams.rawcontinue ) { return smParams.smArray; }
+    if ( !smParams.rawcontinue ) { /* TRON */console.log( 'smParams.smArray: %o', smParams.smArray );/* TROFF */return smParams.smArray; }
     Object.keys( smParams.req ).forEach( key => { fetchSiteMatrixURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( smParams.req[ key ] ); } );
     return fetch( fetchSiteMatrixURL ).then( resSiteMatrixData => { return resSiteMatrixData.json(); } ).then( data => {
 			for ( let key in data.sitematrix ) {
         if ( key !== 'count' && key !== 'specials' && !isNaN( key ) ) {
 					const lang = data.sitematrix[ key ].code;
+          if ( smParams.smArray[ 0 ].langs.indexOf( lang ) === -1 ) { smParams.smArray[ 0 ].langs.push( lang ); }
 					siteWMF = { lang: lang };
-					data.sitematrix[ key ].site.map( proj => { if ( !proj.closed ) { siteWMF[ proj.code ] = proj.url; } } );
+					data.sitematrix[ key ].site.map( proj => {
+            if ( !proj.closed ) {
+              if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
+              siteWMF[ proj.code ] = proj.url;
+            }
+          } );
           smParams.smArray.push( siteWMF );
         }
       }
       data.sitematrix.specials?.map( proj => {
         if ( !proj.closed && !proj.private ) {
+          if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
           if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
 						const siteWMF = { lang: proj.lang };
 						siteWMF[ proj.code ] = proj.url;
 						smParams.smArray.push( siteWMF );
 					}
 					else {
-						smParams.smArray.find( objProj => objProj.lang == proj.lang )[ proj.code ] = proj.url;
-					}
+            if ( smParams.smArray[ 0 ].langs.indexOf( proj.lang ) === -1 ) { smParams.smArray[ 0 ].langs.push( proj.lang ); }
+            smParams.smArray.find( objProj => objProj.lang == proj.lang )[ proj.code ] = proj.url;
+          }
+        }
+      } );
+      smCustom.custom.map( proj => {
+        if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
+        if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
+          const siteCustom = { lang: proj.lang };
+          siteCustom[ proj.code ] = proj.url;
+          smParams.smArray.push( siteCustom );
+        }
+        else {
+          if ( smParams.smArray[ 0 ].langs.indexOf( proj.lang ) === -1 ) { smParams.smArray[ 0 ].langs.push( proj.lang ); }
+          smParams.smArray.find( objProj => objProj.lang == proj.lang )[ proj.code ] = proj.url;
         }
       } );
       if ( !data.continue ) { smParams.rawcontinue = false; }
@@ -100,7 +120,7 @@ client.on( 'messageCreate', async ( message ) => {
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
-    if ( arrWikiLinks.length + arrTemplateLinks.length > 0 ) { /* TRON */console.log( await getSiteMatrix() );/* TROFF */ }
+    if ( arrWikiLinks.length + arrTemplateLinks.length > 0 ) { const siteMatrix = await getSiteMatrix(); }
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
@@ -108,8 +128,8 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
       /* NEW METHOD OF GETTING LINK INFORMATION */
-      for ( let rawLink of arrWikiLinks ) {
-        let thisLink = {  };
+      /*for ( let rawLink of arrWikiLinks ) {
+        let thisLink = {};
         rawLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
         thisLink.alt = rawLink[ 1 ];
         rawLink = rawLink[ 0 ].split( '#' );
@@ -117,15 +137,20 @@ client.on( 'messageCreate', async ( message ) => {
         rawLink = rawLink[ 0 ].split( ':' );
         switch ( rawLink.length ) {
           case 4 : {
-            thisLink.lang = rawLink[ 0 ];
-            thisLink.site = rawLink[ 1 ];
+            thisLink.lang = ( wikiLangs.indexOf( rawLink[ 0 ] ) !== -1 ? rawLink[ 0 ] + ':' : '' );
+            thisLink.site = ( siteMatrix.find(  ) ? rawLink[ 1 ] + ':' : '' );
             thisLink.namespace = rawLink[ 2 ];
             thisLink.page = rawLink[ 3 ];
+            thisLink.url =
             break;
           }
           case 3 : {
-            //thisLink.lang || thisLink.site = rawLink[ 0 ];
-            thisLink.site = rawLink[ 0 ];
+            if ( wikiLangs.indexOf( rawLink[ 0 ] ) !== -1 ) {
+              thisLink.lang = rawLink[ 0 ];
+              if ( siteMatrix.site ) {
+                thisLink.site = rawLink[ 1 ];
+              }
+            }
             //thisLink.site || thisLink.namespace = rawLink[ 1 ];
             thisLink.namespace = rawLink[ 1 ];
             thisLink.page = rawLink[ 2 ];
@@ -143,7 +168,7 @@ client.on( 'messageCreate', async ( message ) => {
           }
         }
         betaLinks.push( thisLink );
-      }
+      }//*/
     }
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
@@ -153,9 +178,9 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + cleanSite + 'Template:' + cleanPage + ']' );
       }
       /* NEW METHOD OF GETTING LINK INFORMATION */
-      for ( let rawLink of arrTemplateLinks ) {
+      /*for ( let rawLink of arrTemplateLinks ) {
         let thisLink = {  };
-        rawLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
+        rawLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' );
         thisLink.alt = rawLink[ 1 ];
         rawLink = rawLink[ 0 ].split( '#' );
         thisLink.section = rawLink[ 1 ];
@@ -181,9 +206,15 @@ client.on( 'messageCreate', async ( message ) => {
           }
         }
         betaLinks.push( thisLink );
-      }
+      }//*/
     }
-/* TRON */console.log( 'betaLinks: %o', betaLinks );/* TROFF */
+/* TRON *///console.log( 'betaLinks: %o', betaLinks );/* TROFF */
+    /*if ( betaLinks.length >= 1 ) {
+      betaLinks = betaLinks.map( link => {
+        let lnkText = ( link.alt ?? ( !link.lang ? '' : link.lang + ':' ) + ( !link.site ? '' : link.site + ':' ) + ( !link.namespace ? '' : link.namespace + ':' ) + link.page + ( !link.section ? '' : '#' + link.section ) );
+        return '[' + lnkText + '](<' + link.url + '/' + lnkSite + lnkNamespace + lnkPage + lnkSection + '>)';
+      } );
+    }//*/
     if ( foundLinks.length >= 1 ) {
       foundLinks = foundLinks.map( v => {
         const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
