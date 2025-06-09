@@ -187,8 +187,8 @@ client.on( 'messageCreate', async ( message ) => {
       foundLinks = foundLinks.map( v => {
         const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
         const lnkText = '[' + ( allParts[ 5 ] ?? ( allParts[ 1 ] || allParts[ 1 ] === '' ? allParts[ 1 ] + ':' : '' ) + ( allParts[ 2 ] || allParts[ 2 ] === '' ? allParts[ 2 ] + ':' : ( !allParts[ 1 ] && !allParts[ 3 ] ? 'Special:' : '' ) ) + ( allParts[ 3 ] ?? 'MyLanguage' ) + ( allParts[ 4 ] ?? '' ) ) + ']';
-        const oneIsSite = ( objNamespaces[ allParts[ 1 ]?.toUpperCase() ] ? false : ( objWikiProjects[ allParts[ 1 ]?.toLowerCase() ] ? true : false ) );
-        const lnkSite = ( !allParts[ 2 ] && allParts[ 2 ] !== '' ? ( oneIsSite ? objWikiProjects[ allParts[ 1 ]?.toLowerCase() ] : objWikiProjects.ddo ) : ( objWikiProjects[ allParts[ 1 ]?.toLowerCase() ] ?? objWikiProjects.ddo ) );
+        const oneIsSite = ( objNamespaces[ allParts[ 1 ]?.toUpperCase() ] ? false : ( smCustom[ allParts[ 1 ]?.toLowerCase() ] ? true : false ) );
+        const lnkSite = ( !allParts[ 2 ] && allParts[ 2 ] !== '' ? ( oneIsSite ? smCustom[ allParts[ 1 ]?.toLowerCase() ] : smCustom.ddo ) : ( smCustom[ allParts[ 1 ]?.toLowerCase() ] ?? smCustom.ddo ) );
         const lnkNSone = ( oneIsSite ? '' : ( allParts[ 1 ] == '' ? '' : ( allParts[ 1 ] ? ( objNamespaces[ allParts[ 1 ].toUpperCase() ] ?? allParts[ 1 ] ) + ':' : null ) ) );
         const lnkNStwo = ( allParts[ 2 ] == '' ? '' : ( allParts[ 2 ] ? ( objNamespaces[ allParts[ 2 ].toUpperCase() ] ?? allParts[ 2 ] ) + ':' : null ) );
         const lnkNamespace = ( lnkNSone === null && lnkNStwo === null ? '' : ( lnkNSone !== null && lnkNStwo === '' ? '' : ( lnkNSone !== null && lnkNStwo === null ? lnkNSone : lnkNStwo ) ) );
