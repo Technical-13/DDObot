@@ -84,9 +84,37 @@ const getSiteMatrix = async function () {
       else { smParams.req.smcontinue = data.continue.smcontinue; }
 
       return smResults( smParams );
-    } ).catch( smErr => {
-      console.log( 'Error attempting to getSiteMatrix() with smParams: %o\nReturned: %o ', smParams, smErr );
-      return [ 'ERROR' ];
+    } )
+    .catch( smErr => {
+      if ( !smParams.smArray[ 0 ].errors ) { smParams.smArray[ 0 ].errors = []; }
+      const thisErr = {};
+      thisErr[ smErr.code ] = smParams.smArray[ 0 ].errors.filter( errCode => smErr.code in errCode ).length + 1;
+      thisErr.received = smErr;
+      if ( smErr.code === 'UND_ERR_CONNECT_TIMEOUT' && ( smParams.timeout ?? 0 ) <= 5 ) {
+        smParams.timeout = ( smParams.timeout ?? 0 ) + 1;
+        let retryIn = 5000;
+        retryIn = retryIn * ( smParams.timeout < 3 ? smParams.timeout : 3 );
+        retryIn = retryIn * ( smParams.timeout <= 3 ? 1 : 2 ** ( 5 - smParams.timeout ) );
+        thisErr.retryIn = retryIn;
+        console.warn( 'Timed out attempting to getSiteMatrix().  Retrying in %s seconds.', retryIn / 1000 );
+        setTimeout( () => { return smResults( smParams ); }, retryIn );
+      }
+      else {
+        console.error( 'Error attempting to getSiteMatrix() with smParams: %o\nReturned: %o ', smParams, smErr );
+        smCustom.custom.map( proj => {
+          if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
+            const siteCustom = { lang: proj.lang };
+            siteCustom[ proj.code ] = proj.url;
+            smParams.smArray.push( siteCustom );
+          }
+          else {
+            if ( smParams.smArray[ 0 ].langs.indexOf( proj.lang ) === -1 ) { smParams.smArray[ 0 ].langs.push( proj.lang ); }
+            smParams.smArray.find( objProj => objProj.lang == proj.lang )[ proj.code ] = proj.url;
+          }
+        } );
+        return smParams.smArray;
+      }
+      smParams.smArray[ 0 ].errors.push( thisErr );
     } );
   };
   return await smResults( smParams );
@@ -144,11 +172,13 @@ client.on( 'messageCreate', async ( message ) => {
         switch ( rawLink.length ) {
           case 4 : {
             isLangX = ( rawLink[ 0 ] === '' );
-            isSiteX = ( rawLink[ 1 ] === '' );
-            isNmSpX = ( rawLink[ 2 ] === '' );
-            isPageX = ( rawLink[ 3 ] === '' );
             isLang0 = ( siteMatrix[ 0 ].langs.indexOf( rawLink[ 0 ] ) !== -1 );
             isLang1 = ( siteMatrix[ 0 ].langs.indexOf( rawLink[ 1 ] ) !== -1 );
+            isSiteX = ( rawLink[ 1 ] === '' );
+            isSite0 = ( siteMatrix[ 0 ].sites.indexOf( rawLink[ 0 ] ) !== -1 );
+            isSite1 = ( siteMatrix[ 0 ].sites.indexOf( rawLink[ 1 ] ) !== -1 );
+            isNmSpX = ( rawLink[ 2 ] === '' );
+            isPageX = ( rawLink[ 3 ] === '' );
             lang = ( isLangX || ( !isLang0 && !isLang1 ) ? defaultLang : ( isLang0 ? rawLink[ 0 ] : rawLink[ 1 ] ) );
             site = ( siteMatrix.find( aLang => aLang[ lang ] == rawLink[ 1 ] ) ? defaultSite : rawLink[ 1 ] );
             namespace = rawLink[ 2 ];
@@ -179,7 +209,7 @@ client.on( 'messageCreate', async ( message ) => {
             break;
           }
         }
-        betaLinks.push( XXXXX );
+        betaLinks.push( 'XXXXX' );
       }//*/
     }
     if ( arrTemplateLinks.length >= 1 ) {
