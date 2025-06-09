@@ -153,7 +153,7 @@ client.on( 'messageCreate', async ( message ) => {
             site = ( siteMatrix.find( aLang => aLang[ lang ] == rawLink[ 1 ] ) ? defaultSite : rawLink[ 1 ] );
             namespace = rawLink[ 2 ];
             page = rawLink[ 3 ];
-            url =
+            url = '';
             break;
           }
           case 3 : {
