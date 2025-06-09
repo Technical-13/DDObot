@@ -469,7 +469,7 @@ client.on( 'ready', async rdy => {
         console.log( 'All done catching up! Results:\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s', strUserUpdate, strUserAdd, strUserRemove, strGuildUpdate, strGuildAdd, strGuildRemove );
       }
     } )
-    .catch( ( rejected ) => { console.error( rejected.message ); } );
+    .catch( ( rejected ) => { console.error( 'Failed to sync bot database and client: %s', rejected.message ); } );
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
 } );

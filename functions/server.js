@@ -33,7 +33,7 @@ async function keepAlive() {
         console.log( '%s is ready on port %s.\n\thttps://%s.MagentaRV.info', bot, port, bot );
       } );
     } )
-    .catch( dbConnectErr => { console.error( chalk.bold.red( 'Failed to connect dashboard to MongoDB:\n%o' ), dbConnectErr ); } );
+    .catch( dbConnectErr => { console.error( chalk.bold.red( 'Failed to connect dashboard to MongoDB:\n%o' ), dbConnectErr.message ); } );
   }
   catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript + '@keepAlive()', errObject.stack ); }
 }
