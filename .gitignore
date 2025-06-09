@@ -3,3 +3,11 @@
 
 #github templates
 *.github
+
+#ignore foo.js updates
+commands/admin/foo.js
+slashCommands/admin/foo.js
+
+#ignore current project files
+commands/wiki/sync.js
+slashCommands/wiki/user.js
