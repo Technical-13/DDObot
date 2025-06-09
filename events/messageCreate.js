@@ -7,7 +7,8 @@ const userPerms = require( '../functions/getPerms.js' );
 const errHandler = require( '../functions/errorHandler.js' );
 const botVerbosity = client.verbosity;
 const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
-const objWikiProjects = require( '../jsonObjects/wikiProjects.json' );
+const smCustom = require( '../jsonObjects/wikiProjects.json' );
+const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
 Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
 const getDebugString = ( thing ) => {
@@ -20,6 +21,56 @@ const getDebugString = ( thing ) => {
     let objName = ( thing ? ( thing.displayName || thing.globalName || thing.name ) : 'no.name' );
     return '{ ' + objType + ': { id: ' + objId + ', name: ' + objName + ' } }';
   }
+};
+
+const getSiteMatrix = async function () {
+  var smParams = {
+    req: {
+			action: 'sitematrix',
+			format: 'json',
+			formatversion: 2,
+			smlangprop: 'code|site',
+			smlimit: 'max',
+			smsiteprop: 'url|code',
+			smtype: 'language|special'
+		},
+    smArray: [ smCustom ],
+    rawcontinue: true
+	};
+  var smResults = function ( smParams ) {
+    if ( !smParams.rawcontinue ) { return smParams.smArray; }
+    Object.keys( smParams.req ).forEach( key => { wmfWikiEndpoint += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( smParams.req[ key ] ); } );
+    return fetch( wmfWikiEndpoint ).then( resSiteMatrixData => { return resSiteMatrixData.json(); } ).then( data => {
+			for ( let key in data.sitematrix ) {
+        if ( key !== 'count' && key !== 'specials' && !isNaN( key ) ) {
+					const lang = data.sitematrix[ key ].code;
+					siteWMF = { lang: lang };
+					data.sitematrix[ key ].site.map( proj => { if ( !proj.closed ) { siteWMF[ proj.code ] = proj.url; } } );
+          smParams.smArray.push( siteWMF );
+        }
+      }
+      data.sitematrix.specials?.map( proj => {
+        if ( !proj.closed && !proj.private ) {
+          if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
+						const siteWMF = { lang: proj.lang };
+						siteWMF[ proj.code ] = proj.url;
+						smParams.smArray.push( siteWMF );
+					}
+					else {
+						smParams.smArray.find( objProj => objProj.lang == proj.lang )[ proj.code ] = proj.url;
+					}
+        }
+      } );
+      if ( !data.continue ) { smParams.rawcontinue = false; }
+      else { smParams.req.smcontinue = data.continue.smcontinue; }
+
+      return smResults( smParams );
+    } ).catch( smErr => {
+      console.log( 'Error attempting to getSiteMatrix() with smParams: %o\nReturned: %o ', smParams, smErr );
+      return [ 'ERROR' ];
+    } );
+  };
+  return await smResults( smParams );
 };
 
 client.on( 'messageCreate', async ( message ) => {
@@ -40,21 +91,59 @@ client.on( 'messageCreate', async ( message ) => {
 
     const sayEveryone = ( ( checkPermission( 'MentionEveryone' ) && mentions.everyone ) ? true : false );
     const strEveryoneHere = ( sayEveryone ? '`@' + ( /@everyone/g.test( content ) ? 'everyone' : 'here' ) + '`' : null );
-    var foundLinks = [];
+    var foundLinks = [], betaLinks = [];
     const codeBlocks = new RegExp( /([`]{3}(?:\n?.*?\n?)[`]{3})/g );
     const codeInline = new RegExp( /([`]{1}.*?[`]{1})/g );
     const noCodeContent = content.replace( codeBlocks, '' ).replace( codeInline, '' );
     const regWikiLinks = new RegExp( /\[\[([^\|\]]*)(?:\|[^\]]*)?\]\][^\s\p{P}]*/gu );
+    const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
+    const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
+    if ( arrWikiLinks.length + arrTemplateLinks.length > 0 ) { /* TRON */console.log( await getSiteMatrix() );/* TROFF */ }
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
         const cleanLink = ( extraText ? rawLink.slice( 0, rawLink.lastIndexOf( ']' ) ) : rawLink ).replace( /[\[\]]/g, '' ).split( '|' );
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
+      /* NEW METHOD OF GETTING LINK INFORMATION */
+      for ( let rawLink of arrWikiLinks ) {
+        let thisLink = {  };
+        rawLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
+        thisLink.alt = rawLink[ 1 ];
+        rawLink = rawLink[ 0 ].split( '#' );
+        thisLink.section = rawLink[ 1 ];
+        rawLink = rawLink[ 0 ].split( ':' );
+        switch ( rawLink.length ) {
+          case 4 : {
+            thisLink.lang = rawLink[ 0 ];
+            thisLink.site = rawLink[ 1 ];
+            thisLink.namespace = rawLink[ 2 ];
+            thisLink.page = rawLink[ 3 ];
+            break;
+          }
+          case 3 : {
+            //thisLink.lang || thisLink.site = rawLink[ 0 ];
+            thisLink.site = rawLink[ 0 ];
+            //thisLink.site || thisLink.namespace = rawLink[ 1 ];
+            thisLink.namespace = rawLink[ 1 ];
+            thisLink.page = rawLink[ 2 ];
+            break;
+          }
+          case 2 : {
+            //thisLink.site || thisLink.namespace = rawLink[ 0 ];
+            thisLink.namespace = rawLink[ 0 ];
+            thisLink.page = rawLink[ 1 ];
+            break;
+          }
+          case 1 : {
+            thisLink.page = rawLink[ 0 ];
+            break;
+          }
+        }
+        betaLinks.push( thisLink );
+      }
     }
-    const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
-    const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
     if ( arrTemplateLinks.length >= 1 ) {
       for ( let rawLink of arrTemplateLinks ) {
         const arrRawLink = rawLink.replace( /[\{\}]/g, '' ).split( '|' )[ 0 ].split( ':' );
@@ -62,7 +151,38 @@ client.on( 'messageCreate', async ( message ) => {
         const cleanSite = ( !arrRawLink[ 0 ] || arrRawLink[ 0 ]?.toLowerCase() === 't' || arrRawLink[ 0 ]?.toLowerCase() === 'template' ? '' : arrRawLink[ 0 ] + ':' );
         foundLinks.push( '[' + cleanSite + 'Template:' + cleanPage + ']' );
       }
+      /* NEW METHOD OF GETTING LINK INFORMATION */
+      for ( let rawLink of arrTemplateLinks ) {
+        let thisLink = {  };
+        rawLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
+        thisLink.alt = rawLink[ 1 ];
+        rawLink = rawLink[ 0 ].split( '#' );
+        thisLink.section = rawLink[ 1 ];
+        rawLink = rawLink[ 0 ].split( ':' );
+        switch ( rawLink.length ) {
+          case 3 : {
+            thisLink.lang = rawLink[ 0 ];
+            thisLink.site = rawLink[ 1 ];
+            thisLink.namespace = 'Template';
+            thisLink.page = rawLink[ 2 ];
+            break;
+          }
+          case 2 : {
+            thisLink.site = rawLink[ 0 ];
+            thisLink.namespace = 'Template';
+            thisLink.page = rawLink[ 1 ];
+            break;
+          }
+          case 1 : {
+            thisLink.namespace = 'Template';
+            thisLink.page = rawLink[ 0 ];
+            break;
+          }
+        }
+        betaLinks.push( thisLink );
+      }
     }
+/* TRON */console.log( 'betaLinks: %o', betaLinks );/* TROFF */
     if ( foundLinks.length >= 1 ) {
       foundLinks = foundLinks.map( v => {
         const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
