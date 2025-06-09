@@ -268,7 +268,7 @@ client.on( 'messageCreate', async ( message ) => {
         const lnkNamespace = ( lnkNSone === null && lnkNStwo === null ? '' : ( lnkNSone !== null && lnkNStwo === '' ? '' : ( lnkNSone !== null && lnkNStwo === null ? lnkNSone : lnkNStwo ) ) );
         const lnkPage = ( allParts[ 3 ] ?? 'MyLanguage' );
         const lnkSection = ( allParts[ 4 ] ?? '' );
-        return lnkText + '(<https://' + lnkSite + '/' + lnkNamespace + lnkPage + lnkSection + '>)';
+        return lnkText + '(<https://' + encodeURI( lnkSite + '/' + lnkNamespace + lnkPage + lnkSection ) + '>)';
       } );
       foundLinks.getDistinct();
 
