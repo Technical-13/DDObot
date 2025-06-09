@@ -38,9 +38,10 @@ const getSiteMatrix = async function () {
     rawcontinue: true
 	};
   var smResults = function ( smParams ) {
+    var fetchSiteMatrixURL = wmfWikiEndpoint;
     if ( !smParams.rawcontinue ) { return smParams.smArray; }
-    Object.keys( smParams.req ).forEach( key => { wmfWikiEndpoint += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( smParams.req[ key ] ); } );
-    return fetch( wmfWikiEndpoint ).then( resSiteMatrixData => { return resSiteMatrixData.json(); } ).then( data => {
+    Object.keys( smParams.req ).forEach( key => { fetchSiteMatrixURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( smParams.req[ key ] ); } );
+    return fetch( fetchSiteMatrixURL ).then( resSiteMatrixData => { return resSiteMatrixData.json(); } ).then( data => {
 			for ( let key in data.sitematrix ) {
         if ( key !== 'count' && key !== 'specials' && !isNaN( key ) ) {
 					const lang = data.sitematrix[ key ].code;
