@@ -1,7 +1,1 @@
-{"custom":[
-  {"lang":"en","code":"ddo","url":"https://ddowiki.com/page"},
-  {"lang":"en","code":"factorio","url":"https://wiki.factorio.com"},
-  {"lang":"en","code":"lotro","url":"https://lotro-wiki.com/wiki"},
-  {"lang":"en","code":"o2ni","url":"https://oxygennotincluded.wiki.gg/wiki"},
-  {"lang":"en","code":"sdv","url":"https://stardewvalleywiki.com"}
-]}
+{"lang":"custom","ddo":"https://ddowiki.com/page","factorio":"https://wiki.factorio.com","lotro":"https://lotro-wiki.com/wiki","o2ni":"https://oxygennotincluded.wiki.gg/wiki","sdv":"https://stardewvalleywiki.com"}

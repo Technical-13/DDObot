@@ -1,14 +1,18 @@
 const client = require( '..' );
 const { EmbedBuilder, Collection, PermissionsBitField } = require( 'discord.js' );
 const ms = require( 'ms' );
+const { URL } = require( 'url' );
 const chalk = require( 'chalk' );
 const cooldown = new Collection();
 const userPerms = require( '../functions/getPerms.js' );
 const errHandler = require( '../functions/errorHandler.js' );
 const botVerbosity = client.verbosity;
 const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
-const smCustom = require( '../jsonObjects/wikiProjects.json' );
+const wikiProjects = require( '../jsonObjects/wikiProjects.json' );
+const smCustom = require( '../jsonObjects/smCustom.json' );
 const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
+const defaultLang = 'en';//I should make this pulled from the bot's client, database, config, or .env
+const defaultSite = 'ddo';//I should make this pulled from the bot's client, database, config, or .env
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
 Array.prototype.getDistinct = function() { return this.filter( ( val, i, arr ) => i == arr.indexOf( val ) ) };
 const getDebugString = ( thing ) => {
@@ -22,7 +26,6 @@ const getDebugString = ( thing ) => {
     return '{ ' + objType + ': { id: ' + objId + ', name: ' + objName + ' } }';
   }
 };
-
 const getSiteMatrix = async function () {
   var smParams = {
     req: {
@@ -34,12 +37,12 @@ const getSiteMatrix = async function () {
 			smsiteprop: 'url|code',
 			smtype: 'language|special'
 		},
-    smArray: [ { langs: [], sites: [] } ],
+    smArray: [ { langs: [] } ],
     rawcontinue: true
 	};
   var smResults = function ( smParams ) {
     var fetchSiteMatrixURL = wmfWikiEndpoint;
-    if ( !smParams.rawcontinue ) { /* TRON */console.log( 'smParams.smArray: %o', smParams.smArray );/* TROFF */return smParams.smArray; }
+    if ( !smParams.rawcontinue ) { return smParams.smArray; }
     Object.keys( smParams.req ).forEach( key => { fetchSiteMatrixURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( smParams.req[ key ] ); } );
     return fetch( fetchSiteMatrixURL ).then( resSiteMatrixData => { return resSiteMatrixData.json(); } ).then( data => {
 			for ( let key in data.sitematrix ) {
@@ -48,17 +51,13 @@ const getSiteMatrix = async function () {
           if ( smParams.smArray[ 0 ].langs.indexOf( lang ) === -1 ) { smParams.smArray[ 0 ].langs.push( lang ); }
 					siteWMF = { lang: lang };
 					data.sitematrix[ key ].site.map( proj => {
-            if ( !proj.closed ) {
-              if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
-              siteWMF[ proj.code ] = proj.url;
-            }
+            if ( !proj.closed ) { siteWMF[ proj.code ] = proj.url; }
           } );
           smParams.smArray.push( siteWMF );
         }
       }
       data.sitematrix.specials?.map( proj => {
         if ( !proj.closed && !proj.private ) {
-          if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
           if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
 						const siteWMF = { lang: proj.lang };
 						siteWMF[ proj.code ] = proj.url;
@@ -71,7 +70,6 @@ const getSiteMatrix = async function () {
         }
       } );
       smCustom.custom.map( proj => {
-        if ( smParams.smArray[ 0 ].sites.indexOf( proj.code ) === -1 ) { smParams.smArray[ 0 ].sites.push( proj.code ); }
         if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
           const siteCustom = { lang: proj.lang };
           siteCustom[ proj.code ] = proj.url;
@@ -93,7 +91,16 @@ const getSiteMatrix = async function () {
   };
   return await smResults( smParams );
 };
-
+const getWikiNamespaces = async function ( wikiURL ) {
+  var siParams = {
+    action: 'query',
+    format: 'json',
+    formatversion: 2,
+    meta: 'siteinfo',
+    siprop: 'namespaces|namespacealiases'
+  };
+  var fetchNamespacesURL = 'https://' + ( new URL( wikiURL ) ).hostname + '';
+}
 client.on( 'messageCreate', async ( message ) => {
   try {
     const { author, channel, content, guild, mentions } = message;
@@ -128,46 +135,51 @@ client.on( 'messageCreate', async ( message ) => {
         foundLinks.push( '[' + ( cleanLink.length == 2 ? cleanLink[ 1 ] + ( !extraText ? '' : extraText ) : cleanLink[ 0 ] + ( !extraText ? '' : extraText ) ) + ']' );
       }
       /* NEW METHOD OF GETTING LINK INFORMATION */
-      /*for ( let rawLink of arrWikiLinks ) {
-        let thisLink = {};
+      for ( let rawLink of arrWikiLinks ) {
         rawLink = rawLink.replace( /[\[\]]/g, '' ).split( '|' );
-        thisLink.alt = rawLink[ 1 ];
+        const altText = rawLink[ 1 ];
         rawLink = rawLink[ 0 ].split( '#' );
-        thisLink.section = rawLink[ 1 ];
+        const section = rawLink[ 1 ];
         rawLink = rawLink[ 0 ].split( ':' );
         switch ( rawLink.length ) {
           case 4 : {
-            thisLink.lang = ( wikiLangs.indexOf( rawLink[ 0 ] ) !== -1 ? rawLink[ 0 ] + ':' : '' );
-            thisLink.site = ( siteMatrix.find(  ) ? rawLink[ 1 ] + ':' : '' );
-            thisLink.namespace = rawLink[ 2 ];
-            thisLink.page = rawLink[ 3 ];
-            thisLink.url =
+            isLangX = ( rawLink[ 0 ] === '' );
+            isSiteX = ( rawLink[ 1 ] === '' );
+            isNmSpX = ( rawLink[ 2 ] === '' );
+            isPageX = ( rawLink[ 3 ] === '' );
+            isLang0 = ( siteMatrix[ 0 ].langs.indexOf( rawLink[ 0 ] ) !== -1 );
+            isLang1 = ( siteMatrix[ 0 ].langs.indexOf( rawLink[ 1 ] ) !== -1 );
+            lang = ( isLangX || ( !isLang0 && !isLang1 ) ? defaultLang : ( isLang0 ? rawLink[ 0 ] : rawLink[ 1 ] ) );
+            site = ( siteMatrix.find( aLang => aLang[ lang ] == rawLink[ 1 ] ) ? defaultSite : rawLink[ 1 ] );
+            namespace = rawLink[ 2 ];
+            page = rawLink[ 3 ];
+            url =
             break;
           }
           case 3 : {
             if ( wikiLangs.indexOf( rawLink[ 0 ] ) !== -1 ) {
-              thisLink.lang = rawLink[ 0 ];
+              lang = rawLink[ 0 ];
               if ( siteMatrix.site ) {
-                thisLink.site = rawLink[ 1 ];
+                site = rawLink[ 1 ];
               }
             }
-            //thisLink.site || thisLink.namespace = rawLink[ 1 ];
-            thisLink.namespace = rawLink[ 1 ];
-            thisLink.page = rawLink[ 2 ];
+            //site || namespace = rawLink[ 1 ];
+            namespace = rawLink[ 1 ];
+            page = rawLink[ 2 ];
             break;
           }
           case 2 : {
-            //thisLink.site || thisLink.namespace = rawLink[ 0 ];
-            thisLink.namespace = rawLink[ 0 ];
-            thisLink.page = rawLink[ 1 ];
+            //site || namespace = rawLink[ 0 ];
+            namespace = rawLink[ 0 ];
+            page = rawLink[ 1 ];
             break;
           }
           case 1 : {
-            thisLink.page = rawLink[ 0 ];
+            page = rawLink[ 0 ];
             break;
           }
         }
-        betaLinks.push( thisLink );
+        betaLinks.push( XXXXX );
       }//*/
     }
     if ( arrTemplateLinks.length >= 1 ) {
@@ -208,7 +220,7 @@ client.on( 'messageCreate', async ( message ) => {
         betaLinks.push( thisLink );
       }//*/
     }
-/* TRON *///console.log( 'betaLinks: %o', betaLinks );/* TROFF */
+/* TRON */console.log( 'betaLinks: %o', betaLinks );/* TROFF */
     /*if ( betaLinks.length >= 1 ) {
       betaLinks = betaLinks.map( link => {
         let lnkText = ( link.alt ?? ( !link.lang ? '' : link.lang + ':' ) + ( !link.site ? '' : link.site + ':' ) + ( !link.namespace ? '' : link.namespace + ':' ) + link.page + ( !link.section ? '' : '#' + link.section ) );
@@ -219,8 +231,8 @@ client.on( 'messageCreate', async ( message ) => {
       foundLinks = foundLinks.map( v => {
         const allParts = v.match( /\[(?:(.*?)(?:\:))?(?:(.*?)(?:\:))?(.*?)(#(?:.*?))?(?:(?:\|)(.*?))?\]/ );
         const lnkText = '[' + ( allParts[ 5 ] ?? ( allParts[ 1 ] || allParts[ 1 ] === '' ? allParts[ 1 ] + ':' : '' ) + ( allParts[ 2 ] || allParts[ 2 ] === '' ? allParts[ 2 ] + ':' : ( !allParts[ 1 ] && !allParts[ 3 ] ? 'Special:' : '' ) ) + ( allParts[ 3 ] ?? 'MyLanguage' ) + ( allParts[ 4 ] ?? '' ) ) + ']';
-        const oneIsSite = ( objNamespaces[ allParts[ 1 ]?.toUpperCase() ] ? false : ( smCustom[ allParts[ 1 ]?.toLowerCase() ] ? true : false ) );
-        const lnkSite = ( !allParts[ 2 ] && allParts[ 2 ] !== '' ? ( oneIsSite ? smCustom[ allParts[ 1 ]?.toLowerCase() ] : smCustom.ddo ) : ( smCustom[ allParts[ 1 ]?.toLowerCase() ] ?? smCustom.ddo ) );
+        const oneIsSite = ( objNamespaces[ allParts[ 1 ]?.toUpperCase() ] ? false : ( wikiProjects[ allParts[ 1 ]?.toLowerCase() ] ? true : false ) );
+        const lnkSite = ( !allParts[ 2 ] && allParts[ 2 ] !== '' ? ( oneIsSite ? wikiProjects[ allParts[ 1 ]?.toLowerCase() ] : wikiProjects.ddo ) : ( wikiProjects[ allParts[ 1 ]?.toLowerCase() ] ?? wikiProjects.ddo ) );
         const lnkNSone = ( oneIsSite ? '' : ( allParts[ 1 ] == '' ? '' : ( allParts[ 1 ] ? ( objNamespaces[ allParts[ 1 ].toUpperCase() ] ?? allParts[ 1 ] ) + ':' : null ) ) );
         const lnkNStwo = ( allParts[ 2 ] == '' ? '' : ( allParts[ 2 ] ? ( objNamespaces[ allParts[ 2 ].toUpperCase() ] ?? allParts[ 2 ] ) + ':' : null ) );
         const lnkNamespace = ( lnkNSone === null && lnkNStwo === null ? '' : ( lnkNSone !== null && lnkNStwo === '' ? '' : ( lnkNSone !== null && lnkNStwo === null ? lnkNSone : lnkNStwo ) ) );
