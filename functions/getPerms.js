@@ -98,7 +98,7 @@ module.exports = async ( user, guild, doBlacklist = true, debug = false ) => {
         members: role.members.size
       };
     } );
-    results.hasRole = ( role ) => { return results.rolesInfo.filter( r => r.id == role || r.name == role ) ? true : false ); };
+    results.hasRole = ( role ) => { return ( results.rolesInfo.filter( r => r.id == role || r.name == role ) ? true : false ); };
 
     results.hasAdministrator = ( ( results.isBotMod || results.isGuildOwner || arrAuthorPermissions.indexOf( 'Administrator' ) !== -1 ) ? true : false );
     results.checkPermission = ( permission ) => { return ( ( results.hasAdministrator || arrAuthorPermissions.indexOf( permission ) !== -1 ) ? true : false ); };
