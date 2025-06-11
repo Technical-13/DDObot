@@ -28,7 +28,7 @@ module.exports = {
         /* TBD */
       }
       else {
-        dmReply.edit( { content: 'I\'m sorry, only <@&158570370817851394> have permission to get me to sync another wiki editor.\nIf you\'re trying to sync yourself, please use `\user link user:\`Wiki Username\``' } );
+        dmReply.edit( { content: 'I\'m sorry, only <@&158570370817851394> have permission to get me to sync another wiki editor.\nIf you\'re trying to sync yourself, please use `/user link user:\`Wiki Username\``' } );
       }
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
