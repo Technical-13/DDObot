@@ -132,7 +132,8 @@ const getWikiNamespaces = async function ( wikiURL ) {
 client.on( 'messageCreate', async ( message ) => {
   try {
     const { author, channel, content, guild, mentions } = message;
-    if ( channel.type !== 0 && channel.type !== 10 && channel.type !== 11 && channel.type !== 12 ) return;//Not a text type channel within a guild
+    const textChanTypes = [ 0, 10, 11, 12 ];
+    if ( textChanTypes.indexOf( channel.type ) === -1 ) return;//Not a text type channel within a guild
     const { applicationId, authorId, webhookId } = message.toJSON();
     if ( !applicationId && webhookId === authorId ) return;//It's a webhook
     const allowedBots = [];
@@ -268,7 +269,7 @@ client.on( 'messageCreate', async ( message ) => {
         const lnkNamespace = ( lnkNSone === null && lnkNStwo === null ? '' : ( lnkNSone !== null && lnkNStwo === '' ? '' : ( lnkNSone !== null && lnkNStwo === null ? lnkNSone : lnkNStwo ) ) );
         const lnkPage = ( allParts[ 3 ] ?? 'MyLanguage' );
         const lnkSection = ( allParts[ 4 ] ?? '' );
-        return lnkText + '(<https://' + encodeURI( lnkSite + '/' + lnkNamespace + lnkPage + lnkSection ) + '>)';
+        return lnkText + '(<' + encodeURI( lnkSite + '/' + lnkNamespace + lnkPage + lnkSection ) + '>)';
       } );
       foundLinks.getDistinct();
 
