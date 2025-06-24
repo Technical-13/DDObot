@@ -14,11 +14,11 @@ module.exports = {
       if ( args.length === 1 ) {
         const path = ( args[ 0 ].match( /https?:\/\/(?:ptb\.)?discord\.com\/channels\/(?<srvID>\d{18,20})\/(?<chanID>\d{18,20})\/(?<msgID>\d{18,20})/i ).groups || null );
         if ( !path ) { throw new Error( 'Unable to find message with link: ' + args[ 0 ] ); }
-        const guild = ( await client.guilds.fetch( path.srvID ) || null );
+        const guild = await client.guilds.fetch( path.srvID ).catch( errGuild => { return errGuild } );console.log( 'guild : %o', guild.toJSON() );
         if ( !guild ) { throw new Error( 'I\'m not in a guild with an ID of: ' + path.srvID ); }
-        const channel = ( await guild.channels.fetch( path.chanID ) || null );
+        const channel = await guild.channels.fetch( path.chanID ).catch( errChan => { return errChan } );console.log( 'channel : %o', channel.toJSON() );
         if ( !guild ) { throw new Error( 'I couldn\'t find a channel in the guild with an ID of: ' + path.chanID ); }
-        const message = ( await channel?.messages.fetch( path.msgID ) || null );
+        const message = await channel?.messages.fetch( path.msgID ).catch( errMsg => { return errMsg } );
         if ( !guild ) { throw new Error( 'I couldn\'t find a message in the channel with an ID of: ' + path.msgID ); }
         console.log( 'message: %o', message.toJSON() );
       }
