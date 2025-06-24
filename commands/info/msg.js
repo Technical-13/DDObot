@@ -12,15 +12,17 @@ module.exports = {
   run: async ( client, message, args ) => {
     try {
       if ( args.length === 1 ) {
-        const path = args[ 0 ].match( /https?:\/\/(?:ptb\.)?discord\.com\/channels\/(?<srvID>\d{18,20})\/(?<chanID>\d{18,20})\/(?<msgID>\d{18,20})/i ).groups;
-        const guild = await client.guilds.fetch( path.srvID );
-        const channel = await guild.channels.fetch( path.chanID );
-        const message = await channel?.messages.fetch( path.msgID );
+        const path = ( args[ 0 ].match( /https?:\/\/(?:ptb\.)?discord\.com\/channels\/(?<srvID>\d{18,20})\/(?<chanID>\d{18,20})\/(?<msgID>\d{18,20})/i ).groups || null );
+        if ( !path ) { throw new Error( 'Unable to find message with link: ' + args[ 0 ] ); }
+        const guild = ( await client.guilds.fetch( path.srvID ) || null );
+        if ( !guild ) { throw new Error( 'I\'m not in a guild with an ID of: ' + path.srvID ); }
+        const channel = ( await guild.channels.fetch( path.chanID ) || null );
+        if ( !guild ) { throw new Error( 'I couldn\'t find a channel in the guild with an ID of: ' + path.chanID ); }
+        const message = ( await channel?.messages.fetch( path.msgID ) || null );
+        if ( !guild ) { throw new Error( 'I couldn\'t find a message in the channel with an ID of: ' + path.msgID ); }
         console.log( 'message: %o', message.toJSON() );
       }
-      else {
-        console.log( 'Command was malformed.  Please try again.' );
-      }
+      else { console.log( 'Command was malformed.  Please try again.' ); }
 
       message.delete();
     }
