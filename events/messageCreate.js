@@ -129,6 +129,7 @@ const getWikiNamespaces = async function ( wikiURL ) {
   };
   var fetchNamespacesURL = 'https://' + ( new URL( wikiURL ) ).hostname + '';
 }
+
 client.on( 'messageCreate', async ( message ) => {
   try {
     const { author, channel, content, guild, mentions } = message;
@@ -251,7 +252,7 @@ client.on( 'messageCreate', async ( message ) => {
         betaLinks.push( thisLink );
       }//*/
     }
-/* TRON */console.log( 'betaLinks: %o', betaLinks );/* TROFF */
+/* TRON console.log( 'betaLinks: %o', betaLinks );/* TROFF *///Don't need this for now...
     /*if ( betaLinks.length >= 1 ) {
       betaLinks = betaLinks.map( link => {
         let lnkText = ( link.alt ?? ( !link.lang ? '' : link.lang + ':' ) + ( !link.site ? '' : link.site + ':' ) + ( !link.namespace ? '' : link.namespace + ':' ) + link.page + ( !link.section ? '' : '#' + link.section ) );
@@ -356,6 +357,12 @@ client.on( 'messageCreate', async ( message ) => {
           }
         }
       }
+    }
+    /* Lamannia pings in DDOwiki Discord Lama channel */
+    // This is a terrible way to do this...
+    // Should make it part of the guild config to ping for Lama notes and which role
+    if ( message.channel.id === '259066867174473728' && message.flags === 2 ) {
+      message.reply( 'Hey, <@&1387138671009861662>!  New announcement posted in official [#lamannia-announcements](<https://discord.gg/NBzb3w48ga>) channel!' );
     }
   }
   catch ( errObject ) {
