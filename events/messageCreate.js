@@ -361,8 +361,12 @@ client.on( 'messageCreate', async ( message ) => {
     /* Lamannia pings in DDOwiki Discord Lama channel */
     // This is a terrible way to do this...
     // Should make it part of the guild config to ping for Lama notes and which role
-    if ( message.channel.id === '259066867174473728' && message.flags === 2 ) {
-      message.reply( 'Hey, <@&1387138671009861662>!  New announcement posted in official [#lamannia-announcements](<https://discord.gg/NBzb3w48ga>) channel!' );
+    if ( message.flags === 2 ) {// It's an announcement
+      if ( message.channelId === '259066867174473728' ) {//It's in: DDOwiki #lamannia
+        if ( message.reference?.guildId === '1253053520488300626' && message.reference?.channelId === '1283154833192521810' ) {//It's from: Official DDO #lamannia-announcements
+        message.reply( 'Hey, <@&1387138671009861662>!  New announcement posted in official [#lamannia-announcements](<https://discord.gg/NBzb3w48ga>) channel!' );
+        }
+      }
     }
   }
   catch ( errObject ) {
