@@ -11,3 +11,4 @@ slashCommands/admin/foo.js
 #ignore current project files
 commands/wiki/sync.js
 slashCommands/wiki/user.js
+slashCommands/wiki/page.js
