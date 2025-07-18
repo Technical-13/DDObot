@@ -51,14 +51,14 @@ module.exports = {
       if ( timestamp === 'INVALID' ) { return interaction.editReply( { content: 'I am unable to parse a date or time from `' + input + '`.  Please try again.' } ); }
       if ( timestamp === 'ERROR' ) { return interaction.editReply( { content: 'I encountered an error attempting to parse a date or time from `' + input + '`.  Please try again later.' } ); }
       return interaction.editReply( { content:
-        'Your timestamps for `' + input + '` are as follows:\n' +
-        '`<t:' + input + ':t>` :arrow_right: <t:' + input + ':t>' +
-        '`<t:' + input + ':T>` :arrow_right: <t:' + input + ':T>' +
-        '`<t:' + input + ':d>` :arrow_right: <t:' + input + ':d>' +
-        '`<t:' + input + ':D>` :arrow_right: <t:' + input + ':D>' +
-        '`<t:' + input + ':f>` :arrow_right: <t:' + input + ':f>' +
-        '`<t:' + input + ':F>` :arrow_right: <t:' + input + ':F>' +
-        '`<t:' + input + ':R>` :arrow_right: <t:' + input + ':R>'
+        'Your timestamps for `' + input + '` are as follows:\n\n' +
+        '`<t:' + timestamp + ':t>` :arrow_right: <t:' + timestamp + ':t>\n' +
+        '`<t:' + timestamp + ':T>` :arrow_right: <t:' + timestamp + ':T>\n' +
+        '`<t:' + timestamp + ':d>` :arrow_right: <t:' + timestamp + ':d>\n' +
+        '`<t:' + timestamp + ':D>` :arrow_right: <t:' + timestamp + ':D>\n' +
+        '`<t:' + timestamp + ':f>` :arrow_right: <t:' + timestamp + ':f>\n' +
+        '`<t:' + timestamp + ':F>` :arrow_right: <t:' + timestamp + ':F>\n' +
+        '`<t:' + timestamp + ':R>` :arrow_right: <t:' + timestamp + ':R>'
       } );
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
