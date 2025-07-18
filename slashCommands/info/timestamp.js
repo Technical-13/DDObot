@@ -1,5 +1,5 @@
 const config = require( '../../config.json' );
-const ddoWikiApiEndpoint = 'https://ddowiki.com/api.php?origin=*';
+const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
 const chalk = require( 'chalk' );
 const { ApplicationCommandType, InteractionContextType } = require( 'discord.js' );
 const getGuildConfig = require( '../../functions/getGuildDB.js' );
@@ -7,7 +7,7 @@ const userPerms = require( '../../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/timestamp.js' );
 
 const validateInput = async function ( input ) {
-  var validateInputURL = ddoWikiApiEndpoint;
+  var validateInputURL = wmfWikiEndpoint;
   const params = {
     action: 'parse',
     format: 'json',
