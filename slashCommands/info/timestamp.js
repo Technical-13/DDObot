@@ -66,13 +66,13 @@ module.exports = {
       const f = '<t:' + timestamp + ':f>', F = '<t:' + timestamp + ':F>';
       const R = '<t:' + timestamp + ':R>';
       switch ( format ) {
-        case 'R': return interaction.editReply( { content: '`' + R + '`'; break;
-        case 't': return interaction.editReply( { content: '`' + t + '`'; break;
-        case 'd': return interaction.editReply( { content: '`' + d + '`'; break;
-        case 'f': return interaction.editReply( { content: '`' + f + '`'; break;
-        case 'T': return interaction.editReply( { content: '`' + T + '`'; break;
-        case 'D': return interaction.editReply( { content: '`' + D + '`'; break;
-        case 'F': return interaction.editReply( { content: '`' + F + '`'; break;
+        case 'R': return interaction.editReply( { content: '`' + R + '`' } ); break;
+        case 't': return interaction.editReply( { content: '`' + t + '`' } ); break;
+        case 'd': return interaction.editReply( { content: '`' + d + '`' } ); break;
+        case 'f': return interaction.editReply( { content: '`' + f + '`' } ); break;
+        case 'T': return interaction.editReply( { content: '`' + T + '`' } ); break;
+        case 'D': return interaction.editReply( { content: '`' + D + '`' } ); break;
+        case 'F': return interaction.editReply( { content: '`' + F + '`' } ); break;
         case 'a': default:
           return interaction.editReply( { content:
             'Your timestamps for `' + input + '` are as follows:\n\n' +
