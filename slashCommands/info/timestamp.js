@@ -36,7 +36,6 @@ module.exports = {
   type: ApplicationCommandType.ChatInput,
   contexts: [ InteractionContextType.Guild ],
   group: 'info',
-  devOnly: true,
   options: [
     { type: 3, name: 'datetime', description: 'When do you want a timestamp for?', required: true }
   ],
