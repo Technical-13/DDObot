@@ -18,7 +18,8 @@ client.on( 'messageUpdate', async ( oldMessage, newMessage ) => {
       var strLastFoundJunk = '';
       const hasJunkEmbed = ( newMessage.embeds.find( embed => {
         for ( const url of arrJunkEmbedURLs ) {
-          if ( url.test( embed.url ) ) {
+          const imgRegex = new RegExp( '\.(bmp|gif|jpg|png)$', 'i' );
+          if ( url.test( embed.url ) && !imgRegex.test( embed.url ) ) {
             strLastFoundJunk = embed.url;
             return embed;
           }
