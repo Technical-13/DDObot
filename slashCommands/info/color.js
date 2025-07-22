@@ -61,6 +61,7 @@ function getValidColor( colorString ) {
       if ( colorData.alpha < 0 || colorData.alpha > 255 ) { return false; }
       colorData.alpha = Math.round( ( colorData.alpha / 255 ) * 10000 ) / 10000;
     }
+    else { colorData.alpha = 1; }
   }
   else { return false; }
   var redHex = colorData.red.toString( 16 );
