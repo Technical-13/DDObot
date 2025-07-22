@@ -145,11 +145,11 @@ module.exports = {
       const rawColor = options.getString( 'color', true );
       const color = getValidColor( rawColor );
       if ( !color ) { return interaction.editReply( { content: '`' + rawColor + '` is not a valid color.' } ); }
-      console.log( 'color-block: %o', generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue } ) );
+      console.log( 'color-block: %o', generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ) );
       const colorEmbed = new EmbedBuilder()
         .setTitle( 'Information about color string: `' + color.raw + '`' )
         .setColor( color.integer )
-        //.setThumbnail( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue } ) )
+        .setThumbnail( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ) )
         .setTimestamp();//*/
       return interaction.editReply( { content: '`' + color.raw + '` is a valid color.', embeds: [ colorEmbed ] } );
     }
