@@ -1,6 +1,6 @@
 const chalk = require( 'chalk' );
 const zlib = require( 'zlib' );
-const { ApplicationCommandType, Colors, EmbedBuilder, InteractionContextType } = require( 'discord.js' );
+const { ApplicationCommandType, AttachmentBuilder, Colors, EmbedBuilder, InteractionContextType } = require( 'discord.js' );
 const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const userPerms = require( '../../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/color.js' );
