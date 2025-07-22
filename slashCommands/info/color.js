@@ -33,7 +33,6 @@ function getValidColor( colorString ) {
     colorData.red = ( rawRed.endsWith( '%' ) ? Math.round( parseFloat( rawRed ) * 2.55 ) : parseInt( rawRed ) );
     colorData.green = ( rawGreen.endsWith( '%' ) ? Math.round( parseFloat( rawGreen ) * 2.55 ) : parseInt( rawGreen ) );
     colorData.blue = ( rawBlue.endsWith( '%' ) ? Math.round( parseFloat( rawBlue ) * 2.55 ) : parseInt( rawBlue ) );
-    } );
   }
   const hexRegExp = new RegExp( '(?:#|0x)?([0-9A-F]{3}|[0-9A-F]{6})', 'i' );
   if ( hexRegExp.test( colorString ) ) {
