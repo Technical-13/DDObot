@@ -4,6 +4,7 @@ const { ApplicationCommandType, AttachmentBuilder, Colors, EmbedBuilder, Interac
 const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const userPerms = require( '../../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/color.js' );
+const getRand = ( min, max ) => Math.floor( Math.random() * ( max - min + 1 ) + min );
 
 function getValidColor( colorString ) {
   const colorData = { raw: colorString };
