@@ -63,7 +63,13 @@ function getValidColor( colorString ) {
     }
   }
   else { return false; }
-  colorData.hex = colorData.red.toString( 16 ) + colorData.green.toString( 16 ) + colorData.blue.toString( 16 );
+  var redHex = colorData.red.toString( 16 );
+  if ( redHex.length == 1 ) { redHex += redHex; }
+  var greenHex = colorData.green.toString( 16 );
+  if ( greenHex.length == 1 ) { greenHex += greenHex; }
+  var blueHex = colorData.blue.toString( 16 );
+  if ( blueHex.length == 1 ) { blueHex += blueHex; }
+  colorData.hex = redHex + greenHex + blueHex;
   colorData.integer = parseInt( '0x' + colorData.hex );
   colorData.hex += ( colorData.alpha == 1 ? '' : Math.round( 255 * colorData.alpha ).toString( 16 ) );
   colorData.hex = '#' + colorData.hex;
@@ -83,7 +89,6 @@ function createChunk( type, data ) {
     lengthBuffer.writeUInt32BE( dataLength, 0 );
     return Buffer.concat( [ lengthBuffer, typeBuffer, chunkData, crcBuffer ] );
 }
-
 function generateSolidColorPNG( { r = 255, g = 255, b = 255, a = 255, width = 1, height = 1 } = {} ) {
     const bitDepth = 8;// 8 bits per color component
     const colorType = 6;// Truecolor with alpha ( RGBA )
