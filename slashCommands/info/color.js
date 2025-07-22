@@ -158,8 +158,8 @@ module.exports = {
         .setColor( color.integer )
         .setThumbnail( 'attachment://color-block.png' )
         .setDescription(
-          'Hex string: `' + color.hex '`\n' +
-          'RGB array: `[ ' + color.red + ', ' + color.green + ', ' + color.blue + ' ]`'
+          'Hex string: `' + color.hex + '`\n' +
+          'RGB array: `[ ' + color.red + ', ' + color.green + ', ' + color.blue + ' ]`' +
           ( ( color.alpha ?? 1 ) >= 0 && ( color.alpha ?? 1 ) < 1 ? 'Transparency: `' + ( color.alpha * 100 )  + '%`' : '' )
         )
         .setTimestamp();//*/
