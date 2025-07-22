@@ -145,12 +145,13 @@ module.exports = {
       const rawColor = options.getString( 'color', true );
       const color = getValidColor( rawColor );
       if ( !color ) { return interaction.editReply( { content: '`' + rawColor + '` is not a valid color.' } ); }
-      /*const colorEmbed = new EmbedBuilder()
+      console.log( 'color-block: %o', generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue } ) );
+      const colorEmbed = new EmbedBuilder()
         .setTitle( 'Information about color string: `' + color.raw + '`' )
         .setColor( color.integer )
-        .setThumbnail( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue } ) )
+        //.setThumbnail( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue } ) )
         .setTimestamp();//*/
-      return interaction.editReply( { content: '`' + color + '` is a valid color.' } );
+      return interaction.editReply( { content: '`' + color.raw + '` is a valid color.', embeds: [ colorEmbed ] } );
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
   }
