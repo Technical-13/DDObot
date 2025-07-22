@@ -151,7 +151,6 @@ module.exports = {
       const rawColor = options.getString( 'color', true );
       const color = getValidColor( rawColor );
       if ( !color ) { return interaction.editReply( { content: '`' + rawColor + '` is not a valid color.' } ); }
-      /* TRON */console.log( 'color: %o', color );/* TROFF */
       const colorBlock = new AttachmentBuilder( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ), { name: 'color-block.png' } );
       const colorEmbed = new EmbedBuilder()
         .setTitle( 'Information about color string: `' + color.raw + '`' )
