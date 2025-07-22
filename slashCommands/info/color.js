@@ -157,6 +157,11 @@ module.exports = {
         .setTitle( 'Information about color string: `' + color.raw + '`' )
         .setColor( color.integer )
         .setThumbnail( 'attachment://color-block.png' )
+        .setDescription(
+          'Hex string: `' + color.hex '`\n' +
+          'RGB array: `[ ' + color.red + ', ' + color.green + ', ' + color.blue + ' ]`'
+          ( ( color.alpha ?? 1 ) >= 0 && ( color.alpha ?? 1 ) < 1 ? 'Transparency: `' + ( color.alpha * 100 )  + '%`' : '' )
+        )
         .setTimestamp();//*/
       return interaction.editReply( { content: '`' + color.raw + '` is a valid color.', embeds: [ colorEmbed ], files: [ colorBlock ] } );
     }
