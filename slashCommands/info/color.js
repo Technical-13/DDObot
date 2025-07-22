@@ -122,7 +122,7 @@ function generateSolidColorPNG( { r = 255, g = 255, b = 255, a = 255, width = 1,
     // Combine all chunks into a single PNG buffer
     const pngBuffer = Buffer.concat( [ signature, ihdrChunk, idatChunk, iendChunk ] );
     // Encode the PNG buffer to base64 and create the data URI
-    return `data:image/png;base64,${pngBuffer.toString( 'base64' )}`;
+    return pngBuffer;
 }
 
 module.exports = {
@@ -145,13 +145,14 @@ module.exports = {
       const rawColor = options.getString( 'color', true );
       const color = getValidColor( rawColor );
       if ( !color ) { return interaction.editReply( { content: '`' + rawColor + '` is not a valid color.' } ); }
-      console.log( 'color-block: %o', generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ) );
+      /* TRON */console.log( 'color: %o', color );/* TROFF */
+      const colorBlock = new AttachmentBuilder( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ), { name: 'color-block.png' } );
       const colorEmbed = new EmbedBuilder()
         .setTitle( 'Information about color string: `' + color.raw + '`' )
         .setColor( color.integer )
-        .setThumbnail( generateSolidColorPNG( { r: color.red, g: color.green, b: color.blue, width: 128, height: 128 } ) )
+        .setThumbnail( 'attachment://color-block.png' )
         .setTimestamp();//*/
-      return interaction.editReply( { content: '`' + color.raw + '` is a valid color.', embeds: [ colorEmbed ] } );
+      return interaction.editReply( { content: '`' + color.raw + '` is a valid color.', embeds: [ colorEmbed ], files: [ colorBlock ] } );
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
   }
