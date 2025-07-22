@@ -54,6 +54,7 @@ module.exports = {
     await interaction.deferReply( { ephemeral: true } );
     const { channel, guild, options, user: member } = interaction;
     const { isGlobalBlacklisted, content } = await userPerms( member, guild );
+    if ( content ) { return interaction.editReply( { content: content } ); }
 
     try {
       const input = ( options.getString( 'datetime' ) ?? 'now' );
