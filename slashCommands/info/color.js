@@ -5,47 +5,68 @@ const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const userPerms = require( '../../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/color.js' );
 
-const getRand = ( min, max ) => Math.floor( Math.random() * ( max - min + 1 ) + min );
-
 function getValidColor( colorString ) {
   const colorData = { raw: colorString };
   colorString = colorString.toString().toLowerCase();
+  const colorNameHex = {};
+  Object.entries( Colors ).map( color => { colorNameHex[ color[ 0 ].toLowerCase() ] = color[ 1 ].toString( 16 ).replace( '0x', '' ); } );
+  const colorNames = Object.keys( colorNameHex );
+  const rgbRegExp = new RegExp( '(?:rgba?)\\((\\s*[\\d]{1,3}%?,?\\s*)(\\s*[\\d]{1,3}%?,?\\s*)(\\s*[\\d]{1,3}%?,?\\s*)([01]\\.?[\\d]+|[\\d]+%?)?\\s*\\);?', 'i' );
+  const hexRegExp = new RegExp( '(?:#|0x)?([0-9A-F]?[0-9A-F])([0-9A-F]?[0-9A-F])([0-9A-F]?[0-9A-F])([0-9A-F]?[0-9A-F])?', 'i' );
   if ( colorString == 'random' ) {
     colorData.red = getRand( 0, 255 );
     colorData.green = getRand( 0, 255 );
     colorData.blue = getRand( 0, 255 );
+    colorData.alpha = 1;
   }
-  const colorNameHex = {};
-  Object.entries( Colors ).map( color => { colorNameHex[ color[ 0 ].toLowerCase() ] = color[ 1 ].toString( 16 ).replace( '0x', '' ); } );
-  const colorNames = Object.keys( colorNameHex );
-  if ( colorNames.includes( colorString ) ) {
+  else if ( colorNames.includes( colorString ) ) {
     const rawHex = colorNameHex[ colorString ];
-    colorData.red = parseInt( rawHex.substr( 0, 2 ) );
-    colorData.green = parseInt( rawHex.substr( 2, 2 ) );
-    colorData.blue = parseInt( rawHex.substr( 4, 2 ) );
+    colorData.red = parseInt( rawHex.substr( 0, 2 ), 16 );
+    colorData.green = parseInt( rawHex.substr( 2, 2 ), 16 );
+    colorData.blue = parseInt( rawHex.substr( 4, 2 ), 16 );
+    colorData.alpha = 1;
   }
-  const rgbRegExp = new RegExp( '(?:rgba?)\\((\\s*[\\d]{1,3}%?,?\\s*)(\\s*[\\d]{1,3}%?,?\\s*)(\\s*[\\d]{1,3}%?,?\\s*)(?:[01]\\.?[\\d]{1,2}|[\\d]{1,3}%?)?\\s*\\);?', 'i' );
-  if ( rgbRegExp.test( colorString ) ) {
+  else if ( rgbRegExp.test( colorString ) ) {
     const rawArray = colorString.match( rgbRegExp );
-    const rawRed = parseInt( rawArray[ 1 ].replace( /,/g, '' ).trim() );
-    const rawGreen = parseInt( rawArray[ 2 ].replace( /,/g, '' ).trim() );
-    const rawBlue = parseInt( rawArray[ 3 ].replace( /,/g, '' ).trim() );
+    const rawRed = rawArray[ 1 ].replace( /,/g, '' ).trim();
+    const rawGreen = rawArray[ 2 ].replace( /,/g, '' ).trim();
+    const rawBlue = rawArray[ 3 ].replace( /,/g, '' ).trim();
+    const rawAlpha = rawArray[ 4 ].trim();
     colorData.red = ( rawRed.endsWith( '%' ) ? Math.round( parseFloat( rawRed ) * 2.55 ) : parseInt( rawRed ) );
+    if ( colorData.red < 0 || colorData.red > 255 ) { return false; }
     colorData.green = ( rawGreen.endsWith( '%' ) ? Math.round( parseFloat( rawGreen ) * 2.55 ) : parseInt( rawGreen ) );
+    if ( colorData.green < 0 || colorData.green > 255 ) { return false; }
     colorData.blue = ( rawBlue.endsWith( '%' ) ? Math.round( parseFloat( rawBlue ) * 2.55 ) : parseInt( rawBlue ) );
+    if ( colorData.blue < 0 || colorData.blue > 255 ) { return false; }
+    colorData.alpha = ( rawAlpha.endsWith( '%' ) ? parseFloat( rawAlpha ) / 100 : parseFloat( rawAlpha ) );
+    if ( colorData.alpha < 0 || colorData.alpha > 1 ) { return false; }
   }
-  const hexRegExp = new RegExp( '(?:#|0x)?([0-9A-F]{3}|[0-9A-F]{6})', 'i' );
-  if ( hexRegExp.test( colorString ) ) {
+  else if ( hexRegExp.test( colorString ) ) {
     const rawArray = colorString.match( hexRegExp );
-    colorData.red = parseInt( rawArray[ 1 ] );
-    colorData.green = parseInt( rawArray[ 2 ] );
-    colorData.blue = parseInt( rawArray[ 3 ] );
+    const rawHex = rawArray[ 0 ].replace( /(0x|#)/, '' );
+    if ( rawHex.length != 3 && rawHex.length != 6 && rawHex.length != 8 ) { return false; }
+    if ( rawHex.length == 3 ) {
+      rawArray[ 1 ] += rawArray[ 1 ];
+      rawArray[ 2 ] += rawArray[ 2 ];
+      rawArray[ 3 ] += rawArray[ 3 ];
+    }
+    colorData.red = parseInt( rawArray[ 1 ], 16 );
+    if ( colorData.red < 0 || colorData.red > 255 ) { return false; }
+    colorData.green = parseInt( rawArray[ 2 ], 16 );
+    if ( colorData.green < 0 || colorData.green > 255 ) { return false; }
+    colorData.blue = parseInt( rawArray[ 3 ], 16 );
+    if ( colorData.blue < 0 || colorData.blue > 255 ) { return false; }
+    if ( rawHex.length == 8 ) {
+      colorData.alpha = parseInt( rawArray[ 4 ], 16 );
+      if ( colorData.alpha < 0 || colorData.alpha > 255 ) { return false; }
+      colorData.alpha = Math.round( ( colorData.alpha / 255 ) * 10000 ) / 10000;
+    }
   }
+  else { return false; }
   colorData.hex = colorData.red.toString( 16 ) + colorData.green.toString( 16 ) + colorData.blue.toString( 16 );
   colorData.integer = parseInt( '0x' + colorData.hex );
+  colorData.hex += ( colorData.alpha == 1 ? '' : Math.round( 255 * colorData.alpha ).toString( 16 ) );
   colorData.hex = '#' + colorData.hex;
-
-  if ( Object.keys( colorData ).length >= 3 ) { return false; }
   return colorData;
 }
 
