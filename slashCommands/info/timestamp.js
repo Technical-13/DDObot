@@ -18,7 +18,7 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
     formatversion: '2'
   };
   Object.keys( params ).forEach( key => { validateInputURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
-  /* TRON */console.log( 'Querying mw-api for timestamp with query: %o', validateInputURL );/* TROFF */
+  /* TRON */console.log( 'Querying mw-api for timestamp with query: %s', validateInputURL );/* TROFF */
   return fetch( validateInputURL ).then( resParsedData => { return resParsedData.json(); } ).then( data => {
     if ( data.parse.text.includes( 'Invalid time' ) ) {
       return 'INVALID';
