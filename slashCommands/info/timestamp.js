@@ -41,7 +41,7 @@ module.exports = {
   options: [
     { type: 3, name: 'datetime', description: 'When do you want a timestamp for? (default `now`)' },
     { type: 10, name: 'offset', min_value: -12, max_value: 14,
-      description: 'The offset for your timezone. (EG +' + ( isDst ? '4' : '5' ) + ' for Eastern ' + ( isDst ? 'Daylight' : 'Standard' ) + ' Time'
+      description: 'The offset for your timezone. (EG +' + ( isDst ? '4' : '5' ) + ' for Eastern ' + ( isDst ? 'Daylight' : 'Standard' ) + ' Time)'
     },
     { type: 3, name: 'format', description: 'Full output or a single format (for easier copy/paste)', choices: [
       { name: 'Full output with all options', value: 'a' },
