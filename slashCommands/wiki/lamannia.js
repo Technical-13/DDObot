@@ -25,7 +25,7 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
       return 'INVALID';
     }
     else {
-      return data.parse.text.match( /<p>([\d]{4}-[\d]{2}-[\d]{2}T[\d]{2}:[\d]{2}:[\d]{2}+[\d]{2}:[\d]{2})\n<\/p>/ )[ 1 ];
+      return data.parse.text.match( /<p>(20[\d]{2}-[01][\d]-[0-3][\d]T[0-6][\d]:[0-6][\d]:[0-6][\d]\+[0-6][\d]:[0-6][\d])\n<\/p>/ )[ 1 ];
     }
   } ).catch( parseErr => {
     console.log( 'Error attempting to validateInput( \'%s\' ) with params: %o\nReturned: %o ', input, params, parseErr );
@@ -71,7 +71,7 @@ module.exports = {
     { type: 3, name: 'open', description: 'What is the date/time Lamannia is supposed to/did open?' },
     { type: 3, name: 'close', description: 'What is the date/time Lamannia is supposed to/did close?' },
     { type: 10, name: 'offset', min_value: -12, max_value: 14,
-      description: 'The offset for your timezone. (EG +' + ( isDst ? '4' : '5' ) + ' for Eastern ' + ( isDst ? 'Daylight' : 'Standard' ) + ' Time'
+      description: 'The offset for your timezone. (EG +' + ( isDst ? '4' : '5' ) + ' for Eastern ' + ( isDst ? 'Daylight' : 'Standard' ) + ' Time)'
     }
   ],
   cooldown: 1000,
