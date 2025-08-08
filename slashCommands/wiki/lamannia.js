@@ -92,8 +92,11 @@ module.exports = {
       if ( isoClose === 'INVALID' ) { return interaction.editReply( { content: 'I am unable to parse a date or time from `' + strClose + '`.  Please try again.' } ); }
       if ( isoClose === 'ERROR' ) { return interaction.editReply( { content: 'I encountered an error attempting to parse a date or time from `' + strClose + '`.  Please try again later.' } ); }
       interaction.editReply( { content: 'Processing your request...' } );
+      const newDateString = '<!-- DDObot -->{{#vardefine:open|' + isoOpen + '}}{{#vardefine:close|' + isoClose + '}}<!-- DDObot -->';
       const tLamaStatusContent = await getWikiPage( 'Template:Lamannia status' );
       console.log( 'tLamaStatusContent: %o', tLamaStatusContent );
+      const newLamaStatus = tLamaStatusContent.replace( /<!-- DDObot -->(.*?)<!-- DDObot -->/, newDateString );
+      console.log( 'newLamaStatus: %o', newLamaStatus );
       /* TBD */
     }
     catch ( errObject ) { console.error( 'Uncaught error in %s:\n\t%s', strScript, errObject.stack ); }
