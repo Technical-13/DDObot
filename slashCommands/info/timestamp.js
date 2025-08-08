@@ -64,7 +64,8 @@ module.exports = {
     try {
       const input = ( options.getString( 'datetime' ) ?? 'now' );
       const format = ( options.getString( 'format' ) ?? 'a' );
-      const timestamp = await validateInput( input );
+      const offset = ( options.getNumber( 'offset' ) ?? 4 + ( isDst ? 0 : 1 ) );
+      const timestamp = await validateInput( input, offset );
       if ( timestamp === 'INVALID' ) { return interaction.editReply( { content: 'I am unable to parse a date or time from `' + input + '`.  Please try again.' } ); }
       if ( timestamp === 'ERROR' ) { return interaction.editReply( { content: 'I encountered an error attempting to parse a date or time from `' + input + '`.  Please try again later.' } ); }
       const t = '<t:' + timestamp + ':t>', T = '<t:' + timestamp + ':T>';
