@@ -68,8 +68,8 @@ module.exports = {
   group: 'wiki',
   devOnly: true,
   options: [
-    { type: 1, name: 'open', description: 'What is the date/time Lamannia is supposed to/did open?' },
-    { type: 1, name: 'close', description: 'What is the date/time Lamannia is supposed to/did close?' },
+    { type: 3, name: 'open', description: 'What is the date/time Lamannia is supposed to/did open?' },
+    { type: 3, name: 'close', description: 'What is the date/time Lamannia is supposed to/did close?' },
     { type: 10, name: 'offset', min_value: -12, max_value: 14,
       description: 'The offset for your timezone. (EG +' + ( isDst ? '4' : '5' ) + ' for Eastern ' + ( isDst ? 'Daylight' : 'Standard' ) + ' Time'
     }
