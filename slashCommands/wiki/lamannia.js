@@ -87,8 +87,8 @@ module.exports = {
       const isoOpen = await validateInput( strOpen, offset );
       if ( isoOpen === 'INVALID' ) { return interaction.editReply( { content: 'I am unable to parse a date or time from `' + strOpen + '`.  Please try again.' } ); }
       if ( isoOpen === 'ERROR' ) { return interaction.editReply( { content: 'I encountered an error attempting to parse a date or time from `' + strOpen + '`.  Please try again later.' } ); }
-      const strClose = ( options.getString( 'close', offset ) ?? 'tomorrow' );
-      const isoClose = await validateInput( strClose );
+      const strClose = ( options.getString( 'close' ) ?? 'tomorrow' );
+      const isoClose = await validateInput( strClose, offset );
       if ( isoClose === 'INVALID' ) { return interaction.editReply( { content: 'I am unable to parse a date or time from `' + strClose + '`.  Please try again.' } ); }
       if ( isoClose === 'ERROR' ) { return interaction.editReply( { content: 'I encountered an error attempting to parse a date or time from `' + strClose + '`.  Please try again later.' } ); }
       interaction.editReply( { content: 'Processing your request...' } );
