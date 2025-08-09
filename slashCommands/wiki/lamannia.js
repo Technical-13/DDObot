@@ -1,5 +1,5 @@
 const config = require( '../../config.json' );
-const ddoWikiApiEndpoint = 'https://ddowiki.com/api.php?origin=*';
+const ddoWikiApiEndpoint = 'https://ddowiki.com/api.php';
 const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
 const chalk = require( 'chalk' );
 const { ApplicationCommandType, InteractionContextType } = require( 'discord.js' );
@@ -33,9 +33,39 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
   } );
 }
 
+const getToken = async function ( type = '*' ) {
+  type = type.toLowerCase();
+  switch( type ) {
+    case '*': case 'createaccount': case 'csrf': case 'login': case 'patrol': case 'rollback': case 'userrights': case 'watch': break;
+    default : return 'ERROR'
+  }
+  var getTokenURL = ddoWikiApiEndpoint;
+  const params = {
+    action: 'query',
+    format: 'json',
+    formatversion: '2',
+    meta: 'tokens',
+    type: type
+  };
+  Object.keys( params ).forEach( ( key, i ) => { getTokenURL += ( i === 0 ? '?' : '&' ) + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
+  /* TRON */console.log( 'Querying ddowiki-api for login token with query: %s', getTokenURL );/* TROFF */
+  return fetch( getTokenURL ).then( resFetchedData => { return resFetchedData.json(); } ).then( data => {
+    if ( Object.keys( data.warnings ?? {} ).length !== 0 ) {
+      console.log( 'Error attempting to getToken( \'%s\' ) with params: %o\nReturned: %o ', type, params, data.warnings );
+      return 'INVALID';
+    }
+    else if ( type === '*' ) { return data.query.tokens; }
+    else { return data.query.tokens[ type + 'token' ]; }
+  } ).catch( parseErr => {
+    console.log( 'Error attempting to getToken( \'%s\' ) with params: %o\nReturned: %o ', type, params, parseErr );
+    return 'ERROR';
+  } );
+}
+
 const getWikiPage = async function ( pagename ) {
   var getPageURL = ddoWikiApiEndpoint;
   const params = {
+    origin: '*',
     action: 'query',
     format: 'json',
     formatversion: '2',
@@ -45,7 +75,7 @@ const getWikiPage = async function ( pagename ) {
     rvslots: 'main',
     titles: pagename
   };
-  Object.keys( params ).forEach( key => { getPageURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
+  Object.keys( params ).forEach( ( key, i ) => { getPageURL += ( i === 0 ? '?' : '&' ) + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
   /* TRON */console.log( 'Querying ddowiki-api for page contents with query: %s', getPageURL );/* TROFF */
   return fetch( getPageURL ).then( resFetchedData => { return resFetchedData.json(); } ).then( data => {
     if ( data.query.pages[ 0 ].missing ) {
