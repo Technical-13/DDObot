@@ -62,6 +62,57 @@ const getToken = async function ( type = '*' ) {
   } );
 }
 
+const isLoggedIn = async function () {
+  var getDataURL = 'https://ddowiki.com/api.php';
+  const params = {
+    action: 'query',
+    format: 'json',
+    formatversion: '2',
+    meta: 'userinfo'
+  };
+  Object.keys( params ).forEach( ( key, i ) => { getDataURL += ( i === 0 ? '?' : '&' ) + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
+  /* TRON */console.log( 'Querying ddowiki-api for login token with query: %s', getDataURL );/* TROFF */
+  return fetch( getDataURL ).then( resFetchedData => { return resFetchedData.json(); } ).then( data => {
+      return ( data.query.userinfo.id ? true : false );
+  } ).catch( dataErr => {
+    console.error( 'dataErr: %o', dataErr );
+    return 'ERROR';
+  } );
+}
+
+const getWikiNames = async function ( wikiUsername ) {
+  var fetchUsersURL = ddoWikiApiEndpoint;
+  var auParams = {
+    req: {
+      //origin: '*',
+      action: 'query',
+      aufrom: wikiUsername.toUpperCase(),
+      aulimit: 'max',
+      auto: wikiUsername.toLowerCase(),
+      format: 'json',
+      formatversion: '2',
+      list: 'allusers'
+    },
+    auArray: [],
+    rawcontinue: true
+  };
+  var auResults = ( auParams ) => {
+    if ( !auParams.rawcontinue ) { return auParams.auArray; }
+    Object.keys( auParams.req ).forEach( ( key, i ) => { fetchUsersURL += ( i === 0 ? '?' : '&' ) + encodeURIComponent( key ) + '=' + encodeURIComponent( auParams.req[ key ] ); } );
+    return fetch( fetchUsersURL ).then( resUsersData => { return resUsersData.json(); } ).then( data => {
+      auParams.auArray = auParams.auArray.concat( data.query.allusers.filter( function ( u ) { if ( u.name.toLowerCase() === wikiUsername.toLowerCase() ) { return u } } ).map( function ( u ) { return u.name; } ) );
+      if ( !data.continue ) { auParams.rawcontinue = false; }
+      else { auParams.req.aufrom = data.continue.aufrom; }
+
+      return auResults( auParams );
+    } ).catch( auErr => {
+      console.log( 'Error attempting to getWikiNames( \'%s\' ) with auParams: %o\nReturned: %o ', wikiUsername, auParams, auError );
+      return [ 'ERROR' ];
+    } );
+  };
+  return await auResults( auParams );
+}
+
 const getWikiPage = async function ( pagename ) {
   var getPageURL = ddoWikiApiEndpoint;
   const params = {
