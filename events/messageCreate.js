@@ -189,7 +189,7 @@ client.on( 'messageCreate', async ( message ) => {
             break;
           }
           case 3 : {
-            if ( wikiLangs.indexOf( rawLink[ 0 ] ) !== -1 ) {
+            if ( siteMatrix[ 0 ].langs.indexOf( rawLink[ 0 ] ) !== -1 ) {
               lang = rawLink[ 0 ];
               if ( siteMatrix.site ) {
                 site = rawLink[ 1 ];
