@@ -6,7 +6,7 @@ const getGuildConfig = require( '../../functions/getGuildDB.js' );
 const userPerms = require( '../../functions/getPerms.js' );
 const strScript = chalk.hex( '#FFA500' ).bold( './slashCommands/info/timestamp.js' );
 
-const isDst = new Date().getHours() !== new Date( new Date().getFullYear(), 0, 1 ).toLocaleString( 'en-US', { timeZone: 'America/New_York' } ).split( ', ' )[ 1 ].split( ':' )[ 0 ];
+const isDst = new Date().getTimezoneOffset() !== new Date( new Date().getFullYear(), 0, 1 ).getTimezoneOffset();
 const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
   var validateInputURL = wmfWikiEndpoint;
   const params = {
