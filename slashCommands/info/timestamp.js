@@ -1,5 +1,5 @@
 const config = require( '../../config.json' );
-const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
+const wmfWikiEndpoint = 'https://wikimedia.org/w/api.php?origin=*';
 const chalk = require( 'chalk' );
 const { ApplicationCommandType, InteractionContextType } = require( 'discord.js' );
 const getGuildConfig = require( '../../functions/getGuildDB.js' );
