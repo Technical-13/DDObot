@@ -1,5 +1,5 @@
 const config = require( '../../config.json' );
-const wmfWikiEndpoint = 'https://wikimedia.org/w/api.php?origin=*';
+const wmfWikiEndpoint = 'https://foundation.wikimedia.org/w/api.php?origin=*';
 const chalk = require( 'chalk' );
 const { ApplicationCommandType, InteractionContextType } = require( 'discord.js' );
 const getGuildConfig = require( '../../functions/getGuildDB.js' );
@@ -18,7 +18,6 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
     formatversion: '2'
   };
   Object.keys( params ).forEach( key => { validateInputURL += '&' + encodeURIComponent( key ) + '=' + encodeURIComponent( params[ key ] ); } );
-  /* TRON */console.log( 'Querying mw-api for timestamp with query: %s', validateInputURL );/* TROFF */
   return fetch( validateInputURL ).then( resParsedData => { return resParsedData.json(); } ).then( data => {
     if ( data.parse.text.includes( 'Invalid time' ) ) {
       return 'INVALID';
@@ -27,7 +26,8 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
       return data.parse.text.match( /<p>([\d]*)\n<\/p>/ )[ 1 ];
     }
   } ).catch( parseErr => {
-    console.log( 'Error attempting to validateInput( \'%s\' ) with params: %o\nReturned: %o ', input, params, parseErr );
+    const isJSON = !( 'is not valid JSON'.test( parseErr.message ) );
+    console.log( 'Error attempting to validateInput( \'%s\' ) with params: %o\nFrom URL: %o\nReturned: %o ', input, params, validateInputURL, isJSON ? parseErr : parseErr.stack );
     return 'ERROR';
   } );
 }
