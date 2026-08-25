@@ -26,7 +26,7 @@ const validateInput = async function ( input, offset = 4 + ( isDst ? 0 : 1 ) ) {
       return data.parse.text.match( /<p>([\d]*)\n<\/p>/ )[ 1 ];
     }
   } ).catch( parseErr => {
-    const isJSON = !( 'is not valid JSON'.test( parseErr.message ) );
+    const isJSON = !( /is not valid JSON/.test( parseErr.message ) );
     console.log( 'Error attempting to validateInput( \'%s\' ) with params: %o\nFrom URL: %o\nReturned: %o ', input, params, validateInputURL, isJSON ? parseErr : parseErr.stack );
     return 'ERROR';
   } );
