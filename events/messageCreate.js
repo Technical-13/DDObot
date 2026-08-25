@@ -102,7 +102,7 @@ const getSiteMatrix = async function () {
         setTimeout( () => { return smResults( smParams ); }, retryIn );
       }
       else {
-        const isJSON = !( 'is not valid JSON'.test( smErr.message ) );
+        const isJSON = !( /is not valid JSON/.test( smErr.message ) );
         console.error( 'Error attempting to getSiteMatrix() with smParams: %o\nFrom URL: %o\nReturned: %o ', smParams, fetchSiteMatrixURL, isJSON ? smErr : smErr.stack );
         smCustom.custom.map( proj => {
           if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
