@@ -10,7 +10,9 @@ const botVerbosity = client.verbosity;
 const objNamespaces = require( '../jsonObjects/nsDDOwiki.json' );
 const wikiProjects = require( '../jsonObjects/wikiProjects.json' );
 const smCustom = require( '../jsonObjects/smCustom.json' );
-const wmfWikiEndpoint = 'https://api.wikimedia.org/w/api.php?origin=*';
+// https://api.wikimedia.org/w/api.php no longer seems to exist and if you try to use it, it redirects you to https://www.mediawiki.org/wiki/Wikimedia_APIs.
+// Going to https://www.mediawiki.org/wiki/Special:Version and clicking on the access point link for `/w/api.php` takes you to https://foundation.wikimedia.org/w/api.php
+const wmfWikiEndpoint = 'https://foundation.wikimedia.org/w/api.php?origin=*';
 const defaultLang = 'en';//I should make this pulled from the bot's client, database, config, or .env
 const defaultSite = 'ddo';//I should make this pulled from the bot's client, database, config, or .env
 const strScript = chalk.hex( '#FFA500' ).bold( './events/messageCreate.js' );
