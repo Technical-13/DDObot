@@ -1,0 +1,131 @@
+name: Project Dependencies Sync
+
+on:
+  workflow_dispatch: # Manual click button
+
+jobs:
+  sync_deps:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout next-gen branch
+        uses: actions/checkout@v4
+        with:
+          ref: next-gen
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Depcheck Globally
+        run: npm install -g depcheck
+
+      - name: Analyze and Directly Modify package.json
+        id: sync_step
+        run: |
+          # 1. Run depcheck analysis purely based on source code strings
+          # It automatically picks up the file rules from your root .depcheckrc file
+          ANALYSIS_OUTPUT=$(depcheck --json --skip-missing=true)
+          
+          # 2. Extract arrays using jq
+          UNUSED_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.dependencies')
+          UNUSED_DEV_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.devDependencies')
+          MISSING_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.missing | keys')
+
+          # Export raw values to Node environment variables
+          export UNUSED_DEPS UNUSED_DEV_DEPS MISSING_DEPS
+
+          # 3. Use inline Node.js script to update package.json raw text
+          node -e '
+            const fs = require("fs");
+            const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            
+            const unusedDeps = JSON.parse(process.env.UNUSED_DEPS || "[]");
+            const unusedDevDeps = JSON.parse(process.env.UNUSED_DEV_DEPS || "[]");
+            const missingDeps = JSON.parse(process.env.MISSING_DEPS || "[]");
+
+            let changed = false;
+            let logAdded = [];
+            let logRemovedDeps = [];
+            let logRemovedDevDeps = [];
+
+            // Remove unused production dependencies
+            if (pkg.dependencies) {
+              unusedDeps.forEach(dep => {
+                if (pkg.dependencies[dep]) {
+                  delete pkg.dependencies[dep];
+                  logRemovedDeps.push(dep);
+                  changed = true;
+                }
+              });
+            }
+
+            // Remove unused dev dependencies
+            if (pkg.devDependencies) {
+              unusedDevDeps.forEach(dep => {
+                if (pkg.devDependencies[dep]) {
+                  delete pkg.devDependencies[dep];
+                  logRemovedDevDeps.push(dep);
+                  changed = true;
+                }
+              });
+            }
+
+            // Add missing dependencies with wildcard "*" version placeholder
+            if (missingDeps.length > 0) {
+              if (!pkg.dependencies) pkg.dependencies = {};
+              missingDeps.forEach(dep => {
+                if (!pkg.dependencies[dep]) {
+                  pkg.dependencies[dep] = "*";
+                  logAdded.push(dep);
+                  changed = true;
+                }
+              });
+            }
+
+            if (!changed) {
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, "has_changes=false\n");
+              process.exit(0);
+            }
+
+            // Save changes formatting with neat spaces
+            fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            
+            // Build the logging summaries for the GitHub output context
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "has_changes=true\n");
+            
+            let summary = "The maintenance script updated package.json properties:\\n";
+            if (logAdded.length) summary += `* **➕ Added (Missing):** ${logAdded.join(", ")}\\n`;
+            if (logRemovedDeps.length) summary += `* **🧹 Removed Dependencies:** ${logRemovedDeps.join(", ")}\\n`;
+            if (logRemovedDevDeps.length) summary += `* **🛠️ Removed DevDependencies:** ${logRemovedDevDeps.join(", ")}\\n`;
+            
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `summary_text=${summary}\n`);
+          '
+
+      - name: Commit Updated package.json
+        if: steps.sync_step.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          git add package.json
+          git commit -m "chore: automated sync of package.json dependencies"
+          git push origin next-gen
+
+      - name: Create Issue Notification Alert
+        if: steps.sync_step.outputs.has_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `${{ steps.sync_step.outputs.summary_text }}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🔄 Automated Sync: package.json Updated',
+              labels: ['maintenance'],
+              body: `### Dependency Synchronization Complete\n\nThe maintenance workflow has modified the \`package.json\` structure in your \`next-gen\` branch.\n\n${summary}\n\n_Note: New additions were appended using the wildcard version \`"*"\`. When you run your bot deployment environment setups locally or on your host, npm will fetch the latest stable versions matching your environment._`
+            });
