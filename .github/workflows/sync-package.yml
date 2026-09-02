@@ -1,7 +1,13 @@
 name: Project Dependencies Sync
 
 on:
-  workflow_dispatch: # Manual click button
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Execute as a Dry Run? (Log report only, no changes will be saved)'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   sync_deps:
@@ -25,22 +31,18 @@ jobs:
       - name: Install Depcheck Globally
         run: npm install -g depcheck
 
-      - name: Analyze and Directly Modify package.json
+      - name: Analyze and Process package.json
         id: sync_step
         run: |
-          # 1. Run depcheck analysis purely based on source code strings
-          # It automatically picks up the file rules from your root .depcheckrc file
           ANALYSIS_OUTPUT=$(depcheck --json --skip-missing=true)
           
-          # 2. Extract arrays using jq
           UNUSED_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.dependencies')
           UNUSED_DEV_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.devDependencies')
           MISSING_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.missing | keys')
 
-          # Export raw values to Node environment variables
           export UNUSED_DEPS UNUSED_DEV_DEPS MISSING_DEPS
+          export DRY_RUN_MODE="${{ inputs.dry_run }}"
 
-          # 3. Use inline Node.js script to update package.json raw text
           node -e '
             const fs = require("fs");
             const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -48,42 +50,41 @@ jobs:
             const unusedDeps = JSON.parse(process.env.UNUSED_DEPS || "[]");
             const unusedDevDeps = JSON.parse(process.env.UNUSED_DEV_DEPS || "[]");
             const missingDeps = JSON.parse(process.env.MISSING_DEPS || "[]");
+            const isDryRun = process.env.DRY_RUN_MODE === "true";
 
             let changed = false;
             let logAdded = [];
             let logRemovedDeps = [];
             let logRemovedDevDeps = [];
 
-            // Remove unused production dependencies
             if (pkg.dependencies) {
               unusedDeps.forEach(dep => {
                 if (pkg.dependencies[dep]) {
-                  delete pkg.dependencies[dep];
                   logRemovedDeps.push(dep);
                   changed = true;
+                  if (!isDryRun) delete pkg.dependencies[dep];
                 }
               });
             }
 
-            // Remove unused dev dependencies
             if (pkg.devDependencies) {
               unusedDevDeps.forEach(dep => {
                 if (pkg.devDependencies[dep]) {
-                  delete pkg.devDependencies[dep];
                   logRemovedDevDeps.push(dep);
                   changed = true;
+                  if (!isDryRun) delete pkg.devDependencies[dep];
                 }
               });
             }
 
-            // Add missing dependencies with wildcard "*" version placeholder
             if (missingDeps.length > 0) {
-              if (!pkg.dependencies) pkg.dependencies = {};
+              if (!pkg.dependencies && !isDryRun) pkg.dependencies = {};
               missingDeps.forEach(dep => {
-                if (!pkg.dependencies[dep]) {
-                  pkg.dependencies[dep] = "*";
+                const alreadyExists = pkg.dependencies && pkg.dependencies[dep];
+                if (!alreadyExists) {
                   logAdded.push(dep);
                   changed = true;
+                  if (!isDryRun) pkg.dependencies[dep] = "*";
                 }
               });
             }
@@ -93,22 +94,25 @@ jobs:
               process.exit(0);
             }
 
-            // Save changes formatting with neat spaces
-            fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            // Only write changes to disk if Dry Run is unchecked
+            if (!isDryRun) {
+              fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            }
             
-            // Build the logging summaries for the GitHub output context
             fs.appendFileSync(process.env.GITHUB_OUTPUT, "has_changes=true\n");
             
-            let summary = "The maintenance script updated package.json properties:\\n";
-            if (logAdded.length) summary += `* **➕ Added (Missing):** ${logAdded.join(", ")}\\n`;
-            if (logRemovedDeps.length) summary += `* **🧹 Removed Dependencies:** ${logRemovedDeps.join(", ")}\\n`;
-            if (logRemovedDevDeps.length) summary += `* **🛠️ Removed DevDependencies:** ${logRemovedDevDeps.join(", ")}\\n`;
+            let prefix = isDryRun ? "🧪 **DRY RUN SIMULATION REPORT** (No files were modified):\\n\\n" : "The maintenance script updated package.json properties:\\n";
+            let summary = prefix;
+            if (logAdded.length) summary += `* **➕ To Add (Missing):** ${logAdded.join(", ")}\\n`;
+            if (logRemovedDeps.length) summary += `* **🧹 To Remove Dependencies:** ${logRemovedDeps.join(", ")}\\n`;
+            if (logRemovedDevDeps.length) summary += `* **🛠️ To Remove DevDependencies:** ${logRemovedDevDeps.join(", ")}\\n`;
             
             fs.appendFileSync(process.env.GITHUB_OUTPUT, `summary_text=${summary}\n`);
           '
 
       - name: Commit Updated package.json
-        if: steps.sync_step.outputs.has_changes == 'true'
+        # Only execute commit if changes exist AND dry run is false
+        if: steps.sync_step.outputs.has_changes == 'true' && inputs.dry_run == false
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@://github.com"
@@ -117,15 +121,19 @@ jobs:
           git push origin next-gen
 
       - name: Create Issue Notification Alert
+        # Always create an issue report if changes are detected, showing you the layout regardless of mode
         if: steps.sync_step.outputs.has_changes == 'true'
         uses: actions/github-script@v7
         with:
           script: |
+            const isDryRun = ${{ inputs.dry_run }};
             const summary = `${{ steps.sync_step.outputs.summary_text }}`;
+            const issueTitle = isDryRun ? '🧪 Dry Run: Dependency Simulation Report' : '🔄 Automated Sync: package.json Updated';
+            
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '🔄 Automated Sync: package.json Updated',
+              title: issueTitle,
               labels: ['maintenance'],
-              body: `### Dependency Synchronization Complete\n\nThe maintenance workflow has modified the \`package.json\` structure in your \`next-gen\` branch.\n\n${summary}\n\n_Note: New additions were appended using the wildcard version \`"*"\`. When you run your bot deployment environment setups locally or on your host, npm will fetch the latest stable versions matching your environment._`
+              body: `### Dependency Sync Worker\n\nBranch: \`next-gen\`\n\n${summary}`
             });
