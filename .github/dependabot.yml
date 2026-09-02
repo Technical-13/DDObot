@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
+    timezone: "America/New_York"
+    open-pull-requests-limit: 1
+
+    # Grouping Engine Configuration
+    groups:
+      action-updates:
+        patterns:
+          - "*" # Wildcard matches every single action used in your repository
