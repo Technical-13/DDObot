@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout next-gen branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: next-gen
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -34,7 +34,7 @@ jobs:
       - name: Analyze and Process package.json
         id: sync_step
         run: |
-          ANALYSIS_OUTPUT=$(depcheck --json --skip-missing=true)
+          ANALYSIS_OUTPUT=$(depcheck --json --skip-missing=true) || true
           
           UNUSED_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.dependencies')
           UNUSED_DEV_DEPS=$(echo "$ANALYSIS_OUTPUT" | jq -c '.devDependencies')
