@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: 'lts/*'
 
       - name: Install Depcheck Globally
         run: npm install -g depcheck
