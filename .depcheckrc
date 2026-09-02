@@ -1,0 +1,15 @@
+{
+  "ignore-patterns": [
+    ".github",
+    "DDOwiki Avatars",
+    ".editorconfig",
+    ".gitignore",
+    "LICENSE",
+    "config.json",
+    ".eslintrc.json",
+    ".eslint.config.js"
+  ],
+  "ignores": [
+    "eslint"
+  ]
+}
