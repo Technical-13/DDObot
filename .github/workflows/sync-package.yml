@@ -127,13 +127,36 @@ jobs:
         with:
           script: |
             const isDryRun = ${{ inputs.dry_run }};
-            const summary = `${{ steps.sync_step.outputs.summary_text }}`;
-            const issueTitle = isDryRun ? '🧪 Dry Run: Dependency Simulation Report' : '🔄 Automated Sync: package.json Updated';
+            const hasChanges = "${{ steps.sync_step.outputs.has_changes }}" === "true";
             
-            await github.rest.issues.create({
+            let issueTitle = "";
+            let issueBody = "";
+
+            if (hasChanges) {
+              issueTitle = isDryRun ? '🧪 Dry Run: Dependency Simulation Report' : '🔄 Automated Sync: package.json Updated';
+              issueBody = `### Dependency Sync Worker\n\nBranch: \`next-gen\`\nTriggered by: @${context.actor}\n\n${{ steps.sync_step.outputs.summary_text }}`;
+            } else {
+              issueTitle = ( isDryRun ? '🧪 Dry Run: ' : '🔄 Automated Sync: ' ) + '✅ Dependency Check: Fully Synced';
+              issueBody = `### Dependency Sync Worker\n\nBranch: \`next-gen\`\nTriggered by: @${context.actor}\n\nNo unused or missing dependencies were detected. Your \`package.json\` file is perfectly optimized and matches your code usage layout rules. No changes were made.`;
+            }
+            
+            // 1. Create the issue and capture its API response data
+            const newIssue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: issueTitle,
               labels: ['maintenance'],
-              body: `### Dependency Sync Worker\n\nBranch: \`next-gen\`\n\n${summary}`
+              assignees: [context.actor],
+              body: issueBody
             });
+
+            // 2. If there are no changes, immediately mark that specific issue number as closed
+            if (!hasChanges) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: newIssue.data.number,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }
