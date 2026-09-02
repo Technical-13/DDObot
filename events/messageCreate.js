@@ -98,11 +98,13 @@ const getSiteMatrix = async function () {
         retryIn = retryIn * ( smParams.timeout < 3 ? smParams.timeout : 3 );
         retryIn = retryIn * ( smParams.timeout <= 3 ? 1 : 2 ** ( 5 - smParams.timeout ) );
         thisErr.retryIn = retryIn;
+        smParams.smArray[ 0 ].errors.push( thisErr );
         console.warn( 'Timed out attempting to getSiteMatrix().  Retrying in %s seconds.', retryIn / 1000 );
         setTimeout( () => { return smResults( smParams ); }, retryIn );
       }
       else {
         const isJSON = !( /is not valid JSON/.test( smErr.message ) );
+        smParams.smArray[ 0 ].errors.push( thisErr );
         console.error( 'Error attempting to getSiteMatrix() with smParams: %o\nFrom URL: %o\nReturned: %o ', smParams, fetchSiteMatrixURL, isJSON ? smErr : smErr.stack );
         smCustom.custom.map( proj => {
           if ( !smParams.smArray.find( objProj => objProj.lang == proj.lang ) ) {
@@ -117,7 +119,6 @@ const getSiteMatrix = async function () {
         } );
         return smParams.smArray;
       }
-      smParams.smArray[ 0 ].errors.push( thisErr );
     } );
   };
   return await smResults( smParams );
@@ -160,7 +161,7 @@ client.on( 'messageCreate', async ( message ) => {
     const regTemplateLinks = new RegExp( /\{\{([^\|\}]*)(?:\|[^\}]*)?\}\}/g );
     const arrWikiLinks = ( noCodeContent.match( regWikiLinks ) || [] );
     const arrTemplateLinks = ( noCodeContent.match( regTemplateLinks ) || [] );
-    if ( arrWikiLinks.length + arrTemplateLinks.length > 0 ) { const siteMatrix = await getSiteMatrix(); }
+    if ( arrWikiLinks.length + arrTemplateLinks.length > 0 ) { const siteMatrix = await getSiteMatrix() ?? []; }
     if ( arrWikiLinks.length >= 1 ) {
       for ( let rawLink of arrWikiLinks ) {
         const extraText = ( ( rawLink.lastIndexOf( ']' ) + 1 ) === rawLink.length ? null : rawLink.slice( rawLink.lastIndexOf( ']' ) + 1 ) );
