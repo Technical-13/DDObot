@@ -1,11 +1,9 @@
 {
   "name": "DDObot",
   "description": "Dungeons and Dragons Online helper bot",
-  "version": "2024.11.16.17.44",
+  "version": "2026.09.12.19.25",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "Technical-13",
   "license": "GPL-3.0",
