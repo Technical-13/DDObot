@@ -18,10 +18,8 @@ jobs:
       issues: write
 
     steps:
-      - name: Checkout next-gen branch
+      - name: Checkout target branch
         uses: actions/checkout@v7
-        with:
-          ref: next-gen
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v7
@@ -115,10 +113,10 @@ jobs:
         if: steps.sync_step.outputs.has_changes == 'true' && inputs.dry_run == false
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.json
           git commit -m "chore: automated sync of package.json dependencies"
-          git push origin next-gen
+          git push origin ${{ github.ref_name }}
 
       - name: Create Issue Notification Alert
         uses: actions/github-script@v9
@@ -132,10 +130,10 @@ jobs:
 
             if (hasChanges) {
               issueTitle = isDryRun ? '🧪 Dry Run: Dependency Simulation Report' : '🔄 Automated Sync: package.json Updated';
-              issueBody = `### Dependency Sync Worker\n\nBranch: \`next-gen\`\nTriggered by: @${context.actor}\n\n${{ steps.sync_step.outputs.summary_text }}`;
+              issueBody = `### Dependency Sync Worker\n\nBranch: \`${context.ref.replace('refs/heads/', '')}\`\nTriggered by: @${context.actor}\n\n${{ steps.sync_step.outputs.summary_text }}`;
             } else {
               issueTitle = ( isDryRun ? '🧪 Dry Run: ' : '🔄 Automated Sync: ' ) + '✅ Dependency Check: Fully Synced';
-              issueBody = `### Dependency Sync Worker\n\nBranch: \`next-gen\`\nTriggered by: @${context.actor}\n\nNo unused or missing dependencies were detected. Your \`package.json\` file is perfectly optimized and matches your code usage layout rules. No changes were made.`;
+              issueBody = `### Dependency Sync Worker\n\nBranch: \`${context.ref.replace('refs/heads/', '')}\`\nTriggered by: @${context.actor}\n\nNo unused or missing dependencies were detected. Your \`package.json\` file is perfectly optimized and matches your code usage layout rules. No changes were made.`;
             }
             
             // 1. Create the issue and capture its API response data
