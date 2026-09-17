@@ -70,11 +70,13 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
     const guildConfig = await getGuildConfig( guild );
     const { doLogs, chanError, strClosing } = guildConfig.Logs;
     const { Active: doInviteLogs, chanError: chanInviteError, strClosing: strInviteClosing } = ( inviteGuild ? await guildConfig( inviteGuild ) : { doLogs, Error: chanError, strClosing: strClosing } );
+    /* TEMPORARY ADJUSTMENT TO REDUCE DMs TO MYSELF */
+    const devErrChan = client.guilds.cache.get( config.devGuildId ).channels.cache.get( '347347787505205248' );
 
     const botUsers = client.users.cache;
     const ownerId = ( botConfig.Owner || client.ownerId || config.botOwnerId || process.env.OWNER_ID );
     const botOwner = botUsers.get( ownerId );
-    const chanName = ( !channel ? 'undefined@guild#channel' : guild.name + '#' + channel.name );
+    const chanName = ( !channel ? 'undefined@guild#channel' : '\'' + guild.name + '\'#' + channel.name );
     const chanLinkMessage = ( !channel ? '`guild#channel: undefined`' : '[' + chanName + '](<https://discord.com/channels/' + guild.id + '/' + channel.id + '>)' );
     const chanLinkConsole = ( !channel ? 'undefined@guild#channel' : 'https://discord.com/channels/' + guild.id + '/' + channel.id );
     const strConsole = '  Please check the console for details.';
@@ -120,8 +122,8 @@ module.exports = async ( errObject, options = { command: 'undefined', debug: fal
             return { content: 'Message you tried to send was longer than the 2,000 character limit.' };
             break;
           default:
-            console.error( 'Unable to send message to %s for /%s request: %s\n\t%s', chanName, cmd, chanLinkConsole, errObject.stack );
-            botOwner.send( { content: 'Unable to send message to ' + chanLinkMessage + ' for `/' + cmd + '` request.' + strConsole } )
+            console.error( 'Unable to send message to %s for /%s request: %s\n\t%s\n%o', chanName, cmd, chanLinkConsole, errObject.stack, errObject );
+            devErrChan.send( { content: 'Unable to send message to ' + chanLinkMessage + ' for `' + cmd + '` request.' + strConsole } )
             .then( errSent => {
               if ( doLogs ) { chanError.send( 'Encounted an error with a `/' + cmd + '` request.' + strNotified + strClosing ); }
               return { content: 'Encounted an error with your `/' + cmd + '` request.' + strNotified };
