@@ -1,8 +1,9 @@
-const modData = { name: 'buildPath', type: 'functions' };
 const bot = require( '..' );
 const { err } = bot;
+const modData = { ext: 'js', file: 'buildPath.js', name: 'buildPath', path: './functions/buildPath.js', type: 'functions' };
 
 /**
+ * Loaded into bot.buildPath in index.js
  * Resolves a structured object into a standard relative file path string.
  * Used primarily for mapping module, command, and handler locations.
  *
@@ -22,14 +23,13 @@ const { err } = bot;
  * // Returns: './bot/foo/bar/baz.example'
  * buildPath( { ext: 'example', group: 'bar', name: 'baz', platform: 'bot', type: 'foo' } );
  */
-function buildPath ( objPath = {} ) {
+module.exports = ( objPath = {} ) => {
   const { ext = 'js', group, name, platform, type } = objPath;
   if ( !name ) { throw new Err( '"name" is required to buildPath()' ); }
   const top = platform ? platform + '/' : '';
   const cat = type ? type + '/' : '';
   const sub = group ? group + '/' : '';
   const file = name + '.' + ext;
-  return './' + top + cat + sub + file;
+  const path = './' + top + cat + sub + file;
+  return { ext: ext, file: file, path: path, ...objPath };
 };
-
-module.exports = buildPath;

@@ -1,9 +1,10 @@
+const modData = { name: 'BotConfig', platform: 'mongodb', type: 'models' };
 const bot = require( '..' );
 const { model, Schema } = bot.mongoose;
 const { Snowflake } = Schema.Types;
 
 const botSchema = new Schema( {
-  _id: { type: String, default: "DDObot-Live" },
+  _id: { type: String, default: "ShoeBot-Live" },
   Name: String,
   Owner: String,
   Platforms: {

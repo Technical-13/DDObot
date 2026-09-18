@@ -1,9 +1,16 @@
-const modData = { name: 'getInternationalizations', type: 'functions' };
 const bot = require( '..' );
-const { chalk, fs } = bot;
-const { Locale } = require( 'discord-api-types/v10' );
-//const parse = require( './parser.js' );
-//const strScript = chalk.hex( '#FFA500' ).bold( getModPath( modData ) );
+const { buildPath } = bot;
+const modData = buildPath( { name: 'getInternationalizations', type: 'functions' } );
 
-const enNames = new Intl.DisplayNames( [ 'en-US' ], { type: 'language' } );
-const objDefaults = { author: null, getLocales: false, guild: null, interaction: null, member: null, uptime: null, useLang: null };
+module.exports = () => {
+  const modPaths = {
+    getOptions: buildPath( { name: 'getOptions', type: 'i18n' } ).path,
+    getResponses: buildPath( { name: 'getResponses', type: 'i18n' } ).path,
+    discordSlasher: buildPath( { name: 'i18nSlasher', platform: 'discord', type: 'functions' } ).path
+  };
+  return {
+    getOptions: require( modPaths.getOptions ),
+    getResponses: require( modPaths.getResponses ),
+    discordSlasher: require( modPaths.discordSlasher )
+  };
+}

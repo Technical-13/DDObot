@@ -20,20 +20,24 @@
  * @requires chalk
  * @requires fs
  */
-const modData = { name: 'index' };
 require( 'dotenv' ).config();
 const { EventEmitter } = require( 'events' );
-const buildPath = require( './functions/buildPath.js' );
+const utils = require( './functions/utils.js' );
+const { buildPath } = utils;
+const modData = buildPath( { name: 'index' } );
 const corePath = {
-  config: buildPath( { ext: 'json', name: 'config' } ),
-  db: buildPath( { name: 'initialize', platform: 'mongodb' } ),
-  discord: buildPath( { name: 'clientDiscord', type: 'functions' } ),
-  Err: buildPath( { name: 'Err', type: 'functions' } ),
-  timeFormat: buildPath( { ext: 'json', name: 'time', type: 'jsonObjects' } ),
-  webDash: buildPath( { name: 'server', platform: 'webDashboard' } )
+  bbeg: buildPath( { name: 'errorHandler', type: 'functions' } ).path,
+  config: buildPath( { ext: 'json', name: 'config' } ).path,
+  db: buildPath( { name: 'initialize', platform: 'mongodb' } ).path,
+  discord: buildPath( { name: 'clientDiscord', type: 'functions' } ).path,
+  Err: buildPath( { name: 'Err', type: 'functions' } ).path,
+  timeFormat: buildPath( { ext: 'json', name: 'time', type: 'jsonObjects' } ).path,
+  webDash: buildPath( { name: 'server', platform: 'webDashboard' } ).path
 };
+const dClient = require( corePath.discord );
 const bot = {
   ascii: require( 'ascii-table' ),
+  bbeg: require( corePath.bbeg ),
   buildPath: buildPath,
   chalk: require( 'chalk' ),
   config: require( corePath.config ),
@@ -41,38 +45,33 @@ const bot = {
   env: process.env,
   Err: require( corePath.Err ),
   events: new EventEmitter(),
-//  express: require( 'express' ),
   fs: require( 'fs' ),
   mongoose: require( 'mongoose' ),
-//  rest: require( '@discordjs/rest' ),
-  timeFormat: require( corePath.timeFormat )
+  timeFormat: require( corePath.timeFormat ),
+  utils: utils
 };
 bot.events.setMaxListeners( 100 );
 module.exports = bot;
+const { chalk, config, env, fs } = bot;
+const iDiscoBots = [];
+const { personas } = config.discord;
+personas.forEach( ego => { if ( ego.enabled ) { iDiscoBots.push( ego.idn ); } } );
 
-const { chalk, env, fs } = bot;
-const strScript = chalk.hex( '#FFA500' ).bold( buildPath( modData ) );// TEMPORARY --- WILL BE IN ERROR HANDLER LATER
-
-require( corePath.db )().then( () => {
+require( corePath.db )().then( async () => {
   console.log( 'Database initialization sequence completed successfully.' );
-  const discord = require( corePath.discord );
-  if ( !discord ) {
-    console.error( 'Failed to initialize Discord client in %s.', strScript );
-    throw new Error( 'Start aborted.' );
+
+  const discord = {};
+  for ( const sEgo of iDiscoBots ) {
+    const persona = personas.find( p => p.idn === sEgo );
+    discord[ sEgo ] = await dClient( persona );
+    if ( !discord[ sEgo ] ) {
+      console.error( 'Failed to initialize Discord client: %s', persona.botName );
+    }
   }
-
   bot.discord = discord;
-
-  fs.readdirSync( './handlers' ).forEach( ( H ) => { require( './handlers/' + H )( discord ); } );
-
-  discord.login( env.token ).then( loggedIn => {
-    console.log( 'Successfully connected!' );
-  } ).catch( errLogin => {
-    console.error( 'There was an error logging in:\n%s', errLogin.stack );
-  } );
 
 //  require( corePath.webDash )();
 } ).catch( errDB => {
-  console.error( 'Failed to initialize database in %s: %o', strScript, errDB );
+  console.error( 'Failed to initialize database in %s: %o', chalk.hex( '#FFA500' ).bold( buildPath( modData ).path ), errDB );
   throw new Error( 'Start aborted.' );
 } );

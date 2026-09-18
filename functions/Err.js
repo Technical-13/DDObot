@@ -1,5 +1,6 @@
-const modData = { name: 'Err', type: 'functions' };
 const bot = require( '..' );
+const { buildPath } = bot;
+const modData = buildPath( { name: 'Err', type: 'functions' } );
 /**
  * Custom error class for handling exceptions with attached metadata.
  *

@@ -1,6 +1,9 @@
-const { model, Schema } = require( 'mongoose' );
+const modData = { name: 'DiscordUser', platform: 'mongodb', type: 'models' };
+const bot = require( '..' );
+const { model, Schema } = bot.mongoose;
+const { Snowflake } = Schema.Types;
 
-let userSchema = new Schema( {
+const userSchema = new Schema( {
   _id: String,
   Bot: Boolean,
   Guilds: [ {
@@ -21,8 +24,7 @@ let userSchema = new Schema( {
   Guildless: Date,
   Score: Number,
   UserName: String,
-  Version: Number//,
-  //WikiAuthentication: { String }
+  Version: Number
 }, { timestamps: true } );
 
-module.exports = model( 'BotUser', userSchema );
+module.exports = model( 'DiscordUser', userSchema );
